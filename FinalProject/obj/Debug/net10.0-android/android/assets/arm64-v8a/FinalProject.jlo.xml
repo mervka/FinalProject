@@ -1,0 +1,15 @@
+<api>
+  <jcw-types>
+    <type name="MainActivity" package="crc64151641136d9e6eb8" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc6488302ad6e9e4df1a.MauiAppCompatActivity" partial_assembly_qualified_name="FinalProject.MainActivity, FinalProject">
+      <constructors>
+        <constructor name="MainActivity" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+        <constructor name="MainActivity" method="n_.ctor:(I)V:" jni_signature="(I)V" managed_parameters="System.Int32, System.Private.CoreLib" params="int p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </constructors>
+    </type>
+    <type name="MainApplication" package="crc64151641136d9e6eb8" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc6488302ad6e9e4df1a.MauiApplication" is_application="True" partial_assembly_qualified_name="FinalProject.MainApplication, FinalProject" application_constructor="MainApplication" />
+  </jcw-types>
+  <acw-types partial-assembly-name="FinalProject" module-name="FinalProject.dll">
+    <type assembly-qualified-name="FinalProject.MainActivity, FinalProject, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="finalproject.MainActivity" java-key="crc64151641136d9e6eb8.MainActivity" managed-key="FinalProject.MainActivity" partial-assembly-qualified-name="FinalProject.MainActivity, FinalProject" />
+    <type assembly-qualified-name="FinalProject.MainApplication, FinalProject, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="finalproject.MainApplication" java-key="crc64151641136d9e6eb8.MainApplication" managed-key="FinalProject.MainApplication" partial-assembly-qualified-name="FinalProject.MainApplication, FinalProject" />
+  </acw-types>
+</api>

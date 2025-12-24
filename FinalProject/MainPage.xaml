@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:skia="clr-namespace:SkiaSharp.Extended.UI.Controls;assembly=SkiaSharp.Extended.UI"
+             x:Class="FinalProject.MainPage">
+
+    <Grid BackgroundColor="#F5F5DC">
+        
+        <!-- Üst Bar - Para Göstergesi -->
+        <Label 
+            Text="🐾 0 Pati"
+            FontSize="20"
+            FontAttributes="Bold"
+            TextColor="#8B4513"
+            Margin="20"
+            HorizontalOptions="End"
+            VerticalOptions="Start"/>
+        
+        <!-- Kedi Animasyonu -->
+        <skia:SKLottieView 
+            x:Name="PetAnimation"
+            Source="loading_cat.json"
+            RepeatCount="-1"
+            WidthRequest="300"
+            HeightRequest="300"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"/>
+        
+        <!-- Test Butonları -->
+        <VerticalStackLayout 
+            Spacing="10"
+            HorizontalOptions="Center"
+            VerticalOptions="End"
+            Margin="20">
+            
+            <Button 
+                Text="😺 Normal"
+                BackgroundColor="#FF9800"
+                TextColor="White"
+                Clicked="OnNormalClicked"
+                WidthRequest="200"/>
+            
+            <Button 
+                Text="😿 Üzgün"
+                BackgroundColor="#F44336"
+                TextColor="White"
+                Clicked="OnSadClicked"
+                WidthRequest="200"/>
+            
+            <Button 
+                Text="😴 Uyuyor"
+                BackgroundColor="#2196F3"
+                TextColor="White"
+                Clicked="OnSleepingClicked"
+                WidthRequest="200"/>
+            
+        </VerticalStackLayout>
+        
+    </Grid>
+
+</ContentPage>
