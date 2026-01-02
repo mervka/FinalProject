@@ -14,11 +14,11 @@
 		</data>
 		<key>FinalProject.dll</key>
 		<data>
-		NTnpnMsexcbcDSWVJZw2gxnqIXI=
+		/Jd2Oh4MWSNEH0P8prjuD5Uy6kg=
 		</data>
 		<key>FinalProject.pdb</key>
 		<data>
-		wATDvckVCGjtFuxikeMDLTQ164Y=
+		kiUq44tgGoM/l9/qv1VSMoA/Wdw=
 		</data>
 		<key>Frameworks/libSkiaSharp.framework/Info.plist</key>
 		<data>
@@ -1120,6 +1120,10 @@
 		<data>
 		oCIIkdcQRn8VqxS7jQr3BZBGlDg=
 		</data>
+		<key>xml/microsoft_maui_essentials_fileprovider_file_paths.xml</key>
+		<data>
+		0ZugOR08oYUyn+ivNzk266eEOoY=
+		</data>
 		<key>zh-HK/Microsoft.Maui.Controls.resources.dll</key>
 		<data>
 		F1A3NA0d1YDy2F9+uevZCuFaZjY=
@@ -1153,14 +1157,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8kYD+Tk9Ou5WS+CkzIfzczZnCKv/WNFvwtyLPQDmC4Y=
+			uLRWzRBeREFFZjqj4hM2Pe1X7YGqPUUUVukDy87r/Xo=
 			</data>
 		</dict>
 		<key>FinalProject.pdb</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			eN3Kavj4sjOpMJovkYhX1/9FSzYYwXxYPf7mCcieeBM=
+			CT2TrhughDRMmAq1OlFVtdHp0wrKu5oXUMW/VtxwE/0=
 			</data>
 		</dict>
 		<key>Frameworks/libSkiaSharp.framework/Info.plist</key>
@@ -3072,6 +3076,13 @@
 			<key>hash2</key>
 			<data>
 			R5TZsaOC07J9pdF+Gn4MBU1R8efdfM0tbrTmYd3B/3o=
+			</data>
+		</dict>
+		<key>xml/microsoft_maui_essentials_fileprovider_file_paths.xml</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			W4mBx+OWozujR6fIlOuqppzspq5DXmkX1Oo5zBuPD6Q=
 			</data>
 		</dict>
 		<key>zh-HK/Microsoft.Maui.Controls.resources.dll</key>

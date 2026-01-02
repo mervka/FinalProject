@@ -28,6 +28,10 @@
 		<data>
 		UqrI40wY1qqMz407YpQETWoVltw=
 		</data>
+		<key>Resources/cat paw loading.json</key>
+		<data>
+		EDbhoQyYGgyclI/OclAfaZekdJ4=
+		</data>
 		<key>Resources/dotnet_bot.png</key>
 		<data>
 		7XA0DBxHt4f3rgG7sHwMI5VUDN0=
@@ -40,21 +44,62 @@
 		<data>
 		fI641eL9jR0ctyTre3xTwKkfsn8=
 		</data>
+		<key>Resources/hello_cat.json</key>
+		<data>
+		MuDMW4nL0+L2/quCOlcYPoP46Kw=
+		</data>
+		<key>Resources/hi_cat.json</key>
+		<data>
+		2ZNz5TgOLGPOqc7m1j2REEzc4yo=
+		</data>
+		<key>Resources/loading_cat.json</key>
+		<data>
+		/7vZugHk59ueA0gNrm1e5Hd2Lqs=
+		</data>
+		<key>Resources/sad_cat.json</key>
+		<data>
+		SNsj9aWO08uNjwNVDzcA5eljB88=
+		</data>
+		<key>Resources/sleeping_cat.json</key>
+		<data>
+		4y3VXgn9/TdZKHx55HhNCTHLYbc=
+		</data>
+		<key>Resources/sleeping_loader_cat.json</key>
+		<data>
+		I8tOF3N+KBL2DVCd4OOC3Uecg5Y=
+		</data>
+		<key>Resources/standing_cat.json</key>
+		<data>
+		pjniMbyaQEucB3XqfjXpTHPU8hM=
+		</data>
+		<key>Resources/xml/microsoft_maui_essentials_fileprovider_file_paths.xml</key>
+		<data>
+		0ZugOR08oYUyn+ivNzk266eEOoY=
+		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Frameworks/libSkiaSharp.framework</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			sGIM1HaSuqlRTJ04gIEtRPaON7Y=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"b0620cd47692baa9514c9d3880812d44f68e37b6"</string>
+		</dict>
 		<key>MonoBundle/FinalProject.dll</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GfWlINJBjqusQ0iB55TaqBCk+RO1vE9mT5eV1ARqC3M=
+			7gnybbsQ6h7Vx6OpebWZjufdAImquAUGmg/tDgiqo1U=
 			</data>
 		</dict>
 		<key>MonoBundle/FinalProject.pdb</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			HAvEQeTzZ3431TxQn00wMIxZQ3WEi+WPWsxlvqzmBeU=
+			RgAFuwS+s8KdFFVLnpohHs+Hfs9ZT8PcuEwdxzVfg5w=
 			</data>
 		</dict>
 		<key>MonoBundle/Microsoft.CSharp.dll</key>
@@ -162,6 +207,13 @@
 			ppMqudXA5wAZ6tapP8N7Djn/24fjpXzdj9lblkgOdXk=
 			</data>
 		</dict>
+		<key>MonoBundle/Microsoft.Maui.Controls.Compatibility.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			6j0//Gs2F0OeMlLpx4+GkeFh2YI0DICdLrsQkStDIYM=
+			</data>
+		</dict>
 		<key>MonoBundle/Microsoft.Maui.Controls.Xaml.dll</key>
 		<dict>
 			<key>hash2</key>
@@ -223,6 +275,69 @@
 			<key>hash2</key>
 			<data>
 			NCCSCs6a3U4JjkG/lfpd3O5a64TUJ29n85bhmKwqUHQ=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Extended.UI.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			UOkeNRinQM9k5CdFZYUFgfQtyiBrc3SSA89rWQrybRw=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Extended.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			HnUyx9mfiKE+KgATRv01de7vvWJgVOj6kqQUXO4Dq1Y=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Resources.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			NO4KVpP0o5kLSzCFmhxAopQjLZlgAg1wW3CmI/9vgHw=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.SceneGraph.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZIhChjfozzFcDI40Zj+21BLttPvOnShPw61mMI0B954=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Skottie.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			vlGJFBa7hWEwu1ZYL93IDFFpNc2vpihLMF4pY1FJQNo=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Views.Maui.Controls.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			KOZuwPIg0eRQn2n+47wC7SNmVbF1ontSyNvrjnyFspY=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Views.Maui.Core.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			+KOBnluOyv0d0Vug9STGLgpP/SV2wX84TLcH9ET346I=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.Views.iOS.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			AJBWJDgFdODfzHVDWp2Mcl6wCutlQJ7CXwTaaQHwSyE=
+			</data>
+		</dict>
+		<key>MonoBundle/SkiaSharp.dll</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			DW3t9u0Dk8Wmf4RnhNYnAjGSnfZ+0xfPfE88w6WZgXo=
 			</data>
 		</dict>
 		<key>MonoBundle/System.AppContext.dll</key>
@@ -1688,6 +1803,13 @@
 			i2hXNksQqmRPKhsotj87jbPtwnCDBykqSfW0r9t2zyg=
 			</data>
 		</dict>
+		<key>Resources/cat paw loading.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			jHouxthlxGAlxsrb90wN/DUAPoeLmDFLQt0YSaXckl4=
+			</data>
+		</dict>
 		<key>Resources/dotnet_bot.png</key>
 		<dict>
 			<key>hash2</key>
@@ -1707,6 +1829,62 @@
 			<key>hash2</key>
 			<data>
 			rSLn1k43aQXR7mL0G0rG/4hhLC1hBtjJ3USgbIFRDnk=
+			</data>
+		</dict>
+		<key>Resources/hello_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			IvjSKMShUwFC/W4In24yl7xbH9dkMTPBPeE0iu1GbQ4=
+			</data>
+		</dict>
+		<key>Resources/hi_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			JHl0LlfwQ7aeoSd475wLbzq4RIxqqC0XLGzUinJQTL0=
+			</data>
+		</dict>
+		<key>Resources/loading_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZFMdZPgv0QJwDvQPlnRpi1qQLSqgX0675i2hgZfGDSc=
+			</data>
+		</dict>
+		<key>Resources/sad_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QOV9kBMuJOivVOyGVALGdmNl/T3kKOFJaQNNtihfwl4=
+			</data>
+		</dict>
+		<key>Resources/sleeping_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			r3rRPsg+wcMgjoIVax8hh/fLK0bfcxNWtYjoOw5kQXg=
+			</data>
+		</dict>
+		<key>Resources/sleeping_loader_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			plcWprxMAPndowYbRjOl10P0hUuxhtzWfAdu+OVaqQY=
+			</data>
+		</dict>
+		<key>Resources/standing_cat.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			7s2+zuDcRsi8o8Xqr5jpZJM/+/G1aeDWpnn/z2I7HM0=
+			</data>
+		</dict>
+		<key>Resources/xml/microsoft_maui_essentials_fileprovider_file_paths.xml</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			W4mBx+OWozujR6fIlOuqppzspq5DXmkX1Oo5zBuPD6Q=
 			</data>
 		</dict>
 	</dict>

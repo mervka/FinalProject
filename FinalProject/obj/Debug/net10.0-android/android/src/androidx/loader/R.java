@@ -19,7 +19,7 @@ public final class R {
 		public static final int fontStyle = 0x7f03021c;
 		public static final int fontVariationSettings = 0x7f03021d;
 		public static final int fontWeight = 0x7f03021e;
-		public static final int ttcIndex = 0x7f030500;
+		public static final int ttcIndex = 0x7f030501;
 	}
 	public static final class color {
 		public static final int notification_action_color_filter = 0x7f0502f6;
@@ -87,13 +87,13 @@ public final class R {
 		public static final int notification_main_column_container = 0x7f08015b;
 		public static final int right_icon = 0x7f080189;
 		public static final int right_side = 0x7f08018a;
-		public static final int tag_transition_group = 0x7f0801da;
-		public static final int tag_unhandled_key_event_manager = 0x7f0801db;
-		public static final int tag_unhandled_key_listeners = 0x7f0801dc;
-		public static final int text = 0x7f0801de;
-		public static final int text2 = 0x7f0801df;
-		public static final int time = 0x7f0801ee;
-		public static final int title = 0x7f0801ef;
+		public static final int tag_transition_group = 0x7f0801db;
+		public static final int tag_unhandled_key_event_manager = 0x7f0801dc;
+		public static final int tag_unhandled_key_listeners = 0x7f0801dd;
+		public static final int text = 0x7f0801df;
+		public static final int text2 = 0x7f0801e0;
+		public static final int time = 0x7f0801ef;
+		public static final int title = 0x7f0801f0;
 	}
 	public static final class integer {
 		public static final int status_bar_notification_info_maxnum = 0x7f090044;
@@ -119,7 +119,7 @@ public final class R {
 		public static final int Widget_Compat_NotificationActionText = 0x7f10033e;
 	}
 	public static final class styleable {
-		public static final int[] ColorStateListItem = new int[] { 0x010101a5, 0x0101031f, 0x01010647, 0x7f030031, 0x7f030288 };
+		public static final int[] ColorStateListItem = new int[] { 0x010101a5, 0x0101031f, 0x01010647, 0x7f030031, 0x7f030289 };
 		public static final int ColorStateListItem_alpha = 3;
 		public static final int ColorStateListItem_android_alpha = 1;
 		public static final int ColorStateListItem_android_color = 0;
@@ -130,7 +130,7 @@ public final class R {
 		public static final int FontFamily_fontProviderFetchTimeout = 4;
 		public static final int FontFamily_fontProviderPackage = 5;
 		public static final int FontFamily_fontProviderQuery = 6;
-		public static final int[] FontFamilyFont = new int[] { 0x01010532, 0x01010533, 0x0101053f, 0x0101056f, 0x01010570, 0x7f030212, 0x7f03021c, 0x7f03021d, 0x7f03021e, 0x7f030500 };
+		public static final int[] FontFamilyFont = new int[] { 0x01010532, 0x01010533, 0x0101053f, 0x0101056f, 0x01010570, 0x7f030212, 0x7f03021c, 0x7f03021d, 0x7f03021e, 0x7f030501 };
 		public static final int FontFamilyFont_android_font = 0;
 		public static final int FontFamilyFont_android_fontStyle = 2;
 		public static final int FontFamilyFont_android_fontVariationSettings = 4;

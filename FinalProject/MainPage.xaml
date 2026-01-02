@@ -5,57 +5,206 @@
              x:Class="FinalProject.MainPage">
 
     <Grid BackgroundColor="#F5F5DC">
-        
-        <!-- Üst Bar - Para Göstergesi -->
-        <Label 
-            Text="🐾 0 Pati"
-            FontSize="20"
-            FontAttributes="Bold"
-            TextColor="#8B4513"
-            Margin="20"
-            HorizontalOptions="End"
-            VerticalOptions="Start"/>
-        
-        <!-- Kedi Animasyonu -->
-        <skia:SKLottieView 
-            x:Name="PetAnimation"
-            Source="loading_cat.json"
-            RepeatCount="-1"
-            WidthRequest="300"
-            HeightRequest="300"
-            HorizontalOptions="Center"
-            VerticalOptions="Center"/>
-        
-        <!-- Test Butonları -->
-        <VerticalStackLayout 
-            Spacing="10"
-            HorizontalOptions="Center"
-            VerticalOptions="End"
-            Margin="20">
-            
-            <Button 
-                Text="😺 Normal"
-                BackgroundColor="#FF9800"
-                TextColor="White"
-                Clicked="OnNormalClicked"
-                WidthRequest="200"/>
-            
-            <Button 
-                Text="😿 Üzgün"
-                BackgroundColor="#F44336"
-                TextColor="White"
-                Clicked="OnSadClicked"
-                WidthRequest="200"/>
-            
-            <Button 
-                Text="😴 Uyuyor"
-                BackgroundColor="#2196F3"
-                TextColor="White"
-                Clicked="OnSleepingClicked"
-                WidthRequest="200"/>
-            
-        </VerticalStackLayout>
-        
-    </Grid>
 
+        <!-- 1) 3 Satir: TopBar / Room / BottomBar -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- =======================
+             TOP BAR (Row 0)
+        ======================== -->
+        <Grid Grid.Row="0" Padding="16,12">
+            <Label Text="{Binding PatiCoinsText}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#8B4513"
+                   HorizontalOptions="End"
+                   VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- =======================
+             ROOM AREA (Row 1)
+        ======================== -->
+        <AbsoluteLayout Grid.Row="1" Margin="12">
+
+            <!-- HOME PET (Sadece session çalışmıyorken görünsün) -->
+            <skia:SKLottieView
+                Source="{Binding LottieSource}"
+                RepeatCount="-1"
+                HeightRequest="260"
+                WidthRequest="260"
+                AbsoluteLayout.LayoutBounds="0.5,0.62,260,260"
+                AbsoluteLayout.LayoutFlags="PositionProportional">
+
+                <!-- ✅ Session başlayınca bunu gizliyoruz (çift animasyon olmasın diye) -->
+                <skia:SKLottieView.Triggers>
+                    <DataTrigger TargetType="skia:SKLottieView"
+                                 Binding="{Binding IsSessionRunning}"
+                                 Value="True">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </skia:SKLottieView.Triggers>
+            </skia:SKLottieView>
+
+        </AbsoluteLayout>
+
+        <!-- =======================
+             BOTTOM BAR (Row 2)
+             (Overlay açıkken görünmesin)
+        ======================== -->
+        <Grid Grid.Row="2" Padding="16,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ✅ Running veya Picker açıkken BottomBar'ı sakla -->
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid"
+                             Binding="{Binding IsSessionRunning}"
+                             Value="True">
+                    <Setter Property="IsVisible" Value="False"/>
+                </DataTrigger>
+                <DataTrigger TargetType="Grid"
+                             Binding="{Binding IsDurationPickerVisible}"
+                             Value="True">
+                    <Setter Property="IsVisible" Value="False"/>
+                </DataTrigger>
+            </Grid.Triggers>
+
+            <Button Grid.Column="0"
+                    Text="🛒"
+                    FontSize="22"
+                    BackgroundColor="Transparent"/>
+
+            <Button Grid.Column="1"
+                    Text="FOCUS!"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    BackgroundColor="#FFB74D"
+                    TextColor="Black"
+                    CornerRadius="18"
+                    HeightRequest="52"
+                    HorizontalOptions="Center"
+                    WidthRequest="200"
+                    Command="{Binding ShowDurationPickerCommand}"/>
+
+            <Button Grid.Column="2"
+                    Text="📊"
+                    FontSize="22"
+                    BackgroundColor="Transparent"/>
+        </Grid>
+
+
+        <!-- ======================================================
+             OVERLAY 1: Süre Seçimi
+        ======================================================= -->
+        <Grid Grid.RowSpan="3"
+              IsVisible="{Binding IsDurationPickerVisible}">
+
+            <BoxView Color="Black" Opacity="0.55"/>
+
+            <Frame Padding="16"
+                   CornerRadius="20"
+                   BackgroundColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   WidthRequest="300">
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Süre Seç"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button Text="15"
+                                Command="{Binding SelectDurationCommand}"
+                                CommandParameter="15"/>
+                        <Button Text="25"
+                                Command="{Binding SelectDurationCommand}"
+                                CommandParameter="25"/>
+                        <Button Text="50"
+                                Command="{Binding SelectDurationCommand}"
+                                CommandParameter="50"/>
+                    </HorizontalStackLayout>
+
+                    <Label Text="{Binding SelectedMinutes, StringFormat='Seçilen: {0} dk'}"
+                           HorizontalOptions="Center"/>
+
+                    <Button Text="START"
+                            BackgroundColor="#4CAF50"
+                            TextColor="White"
+                            Command="{Binding StartFromPickerCommand}"/>
+
+                    <Button Text="BACK"
+                            BackgroundColor="#E0E0E0"
+                            Command="{Binding HideDurationPickerCommand}"/>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+
+
+        <!-- ======================================================
+             OVERLAY 2: Running
+        ======================================================= -->
+        <Grid Grid.RowSpan="3"
+              IsVisible="{Binding IsSessionRunning}">
+
+            <!-- ✅ Alttaki UI görünmesin diye dim'i daha güçlü yaptım -->
+            <BoxView Color="Black" Opacity="0.75"/>
+
+            <Label Text="DON'T INTERRUPT ME!"
+                   TextColor="White"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Start"
+                   Margin="0,80,0,0"/>
+
+            <!-- ✅ Session sırasında pet + timer aynı katmanda (tek animasyon) -->
+            <Grid HorizontalOptions="Center" VerticalOptions="Center">
+
+                <skia:SKLottieView
+                    Source="{Binding LottieSource}"
+                    RepeatCount="-1"
+                    HeightRequest="240"
+                    WidthRequest="240"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"/>
+
+                <VerticalStackLayout HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Spacing="6">
+                    <Label Text="{Binding SessionTypeText}"
+                           TextColor="White"
+                           FontSize="18"
+                           HorizontalOptions="Center"/>
+
+                    <Label Text="{Binding RemainingTimeText}"
+                           TextColor="White"
+                           FontSize="48"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+            </Grid>
+
+            <Button Text="CANCEL"
+                    Command="{Binding CancelSessionCommand}"
+                    BackgroundColor="#EF5350"
+                    TextColor="White"
+                    CornerRadius="16"
+                    HeightRequest="52"
+                    WidthRequest="220"
+                    HorizontalOptions="Center"
+                    VerticalOptions="End"
+                    Margin="0,0,0,40"/>
+        </Grid>
+
+    </Grid>
 </ContentPage>

@@ -8,7 +8,8 @@ public class Pet
     public int Health { get; set; } = 100;
     public int PatiCoins { get; set; } = 0;
     public int TotalFocusMinutes { get; set; } = 0;
-    public string CurrentAnimation { get; set; } = "hi_cat.json";
+    public string CurrentAnimation { get; set; } = "standing_cat.json";
+    
     
     public int Level => TotalFocusMinutes switch
     {
