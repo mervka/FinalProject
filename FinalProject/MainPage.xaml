@@ -17,12 +17,49 @@
              TOP BAR (Row 0)
         ======================== -->
         <Grid Grid.Row="0" Padding="16,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
             <Label Text="{Binding PatiCoinsText}"
                    FontSize="18"
                    FontAttributes="Bold"
                    TextColor="#8B4513"
                    HorizontalOptions="End"
                    VerticalOptions="Center"/>
+            
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="Auto,*,Auto,*,Auto,*"
+                  ColumnSpacing="6"
+                  RowSpacing="6"
+                  Margin="0,12,0,0">
+                <Label Text="🍗"
+                       FontSize="14"
+                       VerticalOptions="Center"/>
+                <ProgressBar Grid.Column="1"
+                             Progress="{Binding HungerProgress}"
+                             ProgressColor="#FFA726"
+                             HeightRequest="8"/>
+
+                <Label Grid.Column="2"
+                       Text="🎾"
+                       FontSize="14"
+                       VerticalOptions="Center"/>
+                <ProgressBar Grid.Column="3"
+                             Progress="{Binding HappinessProgress}"
+                             ProgressColor="#66BB6A"
+                             HeightRequest="8"/>
+
+                <Label Grid.Column="4"
+                       Text="💊"
+                       FontSize="14"
+                       VerticalOptions="Center"/>
+                <ProgressBar Grid.Column="5"
+                             Progress="{Binding HealthProgress}"
+                             ProgressColor="#42A5F5"
+                             HeightRequest="8"/>
+            </Grid>
         </Grid>
 
         <!-- =======================

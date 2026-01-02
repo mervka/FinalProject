@@ -9,6 +9,11 @@ namespace FinalProject.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
+    private const int StatMax = 100;
+    private const int StatMin = 0;
+    private const int StatDecayAmount = 1;
+    private static readonly TimeSpan StatDecayInterval = TimeSpan.FromMinutes(10);
+
     // -------------------------
     // 1) Services + State
     // -------------------------
@@ -16,6 +21,8 @@ public class MainViewModel : INotifyPropertyChanged
 
     private Pet _pet = new();
     private bool _isInitialized;
+    private CancellationTokenSource? _statDecayCts;
+
 
     private CancellationTokenSource? _cts;
     private TimeSpan _remainingTime = TimeSpan.Zero;
@@ -114,6 +121,13 @@ public class MainViewModel : INotifyPropertyChanged
 
     public string PatiCoinsText => $"🐾 {Pet.PatiCoins} Pati";
     public string CurrentAnimation => Pet.CurrentAnimation;
+    public int Hunger => Pet.Hunger;
+    public int Happiness => Pet.Happiness;
+    public int Health => Pet.Health;
+
+    public double HungerProgress => Hunger / (double)StatMax;
+    public double HappinessProgress => Happiness / (double)StatMax;
+    public double HealthProgress => Health / (double)StatMax;
 
     // SKLottieView Source icin
     public SKLottieImageSource LottieSource =>
@@ -173,6 +187,8 @@ public class MainViewModel : INotifyPropertyChanged
                 loaded.CurrentAnimation = "standing_cat.json";
 
             Pet = loaded;
+            StartStatDecayLoop();
+
         }
         catch (Exception ex)
         {
@@ -309,12 +325,79 @@ public class MainViewModel : INotifyPropertyChanged
     {
         await _dataService.SavePetAsync(Pet);
     }
+    
+    private void StartStatDecayLoop()
+    {
+        if (_statDecayCts != null)
+        {
+            return;
+        }
+
+        _statDecayCts = new CancellationTokenSource();
+        var token = _statDecayCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            using var timer = new PeriodicTimer(StatDecayInterval);
+
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                var petHunger = Pet.Hunger;
+                var petHappiness = Pet.Happiness;
+                var petHealth = Pet.Health;
+                var didChange = AdjustStat(ref petHunger, -StatDecayAmount);
+                didChange |= AdjustStat(ref petHappiness, -StatDecayAmount);
+                didChange |= AdjustStat(ref petHealth, -StatDecayAmount);
+                
+                    if (didChange)
+                    {
+                        Pet.Hunger = petHunger;
+                        Pet.Happiness = petHappiness;
+                        Pet.Health = petHealth;
+                    }
+                
+
+                OnPetStatsChanged();
+                await SavePetAsync();
+            }
+        }, token);
+    }
+
+    private static int ClampStat(int value)
+    {
+        return Math.Clamp(value, StatMin, StatMax);
+    }
+
+    private static bool AdjustStat(ref int stat, int delta)
+    {
+        var updated = ClampStat(stat + delta);
+        if (updated == stat)
+        {
+            return false;
+        }
+
+        stat = updated;
+        return true;
+    }
+
+    private void OnPetStatsChanged()
+    {
+        OnPropertyChanged(nameof(Hunger));
+        OnPropertyChanged(nameof(Happiness));
+        OnPropertyChanged(nameof(Health));
+        OnPropertyChanged(nameof(HungerProgress));
+        OnPropertyChanged(nameof(HappinessProgress));
+        OnPropertyChanged(nameof(HealthProgress));
+    }
+
 
     private void OnPetUiChanged()
     {
         OnPropertyChanged(nameof(PatiCoinsText));
         OnPropertyChanged(nameof(CurrentAnimation));
         OnPropertyChanged(nameof(LottieSource));
+        OnPetStatsChanged();
+
     }
 
     // -------------------------
