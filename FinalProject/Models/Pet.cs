@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace FinalProject.Models;
 
 public class Pet
@@ -9,6 +11,9 @@ public class Pet
     public int PatiCoins { get; set; } = 0;
     public int TotalFocusMinutes { get; set; } = 0;
     public string CurrentAnimation { get; set; } = "standing_cat.json";
+    public List<string> OwnedItemIds { get; set; } = new();
+    public List<RoomItem> RoomItems { get; set; } = new();
+    public List<FocusSession> FocusSessions { get; set; } = new();
     
     
     public int Level => TotalFocusMinutes switch
