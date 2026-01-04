@@ -1,9 +1,13 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
+using System.Linq;
 using FinalProject.Models;
 using FinalProject.Services;
 using SkiaSharp.Extended.UI.Controls;
+using Microsoft.Maui.ApplicationModel;
+
 
 namespace FinalProject.ViewModels;
 
@@ -30,8 +34,7 @@ public class MainViewModel : INotifyPropertyChanged
     private bool _isBreakSession;
     private int _selectedMinutes = 25;
     private bool _isDurationPickerVisible;
-   
-
+    private bool _isShopVisible;
     
 
     // -------------------------
@@ -41,6 +44,9 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand SelectDurationCommand { get; }
     public ICommand StartSessionCommand { get; }
     public ICommand CancelSessionCommand { get; }
+    public ICommand ShowShopCommand { get; }
+    public ICommand HideShopCommand { get; }
+    public ICommand BuyItemCommand { get; }
     
     public bool IsDurationPickerVisible
     {
@@ -48,6 +54,18 @@ public class MainViewModel : INotifyPropertyChanged
         set
         {
             if (_isDurationPickerVisible == value) return; _isDurationPickerVisible = value; OnPropertyChanged(); 
+            OnPropertyChanged(nameof(IsBottomBarVisible));
+        }
+    }
+    
+    public bool IsShopVisible
+    {
+        get => _isShopVisible;
+        set
+        {
+            if (_isShopVisible == value) return;
+            _isShopVisible = value;
+            OnPropertyChanged();
             OnPropertyChanged(nameof(IsBottomBarVisible));
         }
     }
@@ -103,6 +121,23 @@ public class MainViewModel : INotifyPropertyChanged
             if (!IsSessionRunning) return;
             CancelSession();
         });
+        
+        ShowShopCommand = new Command(() =>
+        {
+            if (IsSessionRunning) return;
+            IsShopVisible = true;
+        });
+
+        HideShopCommand = new Command(() =>
+        {
+            IsShopVisible = false;
+        });
+
+        BuyItemCommand = new Command<ShopItem>(async item =>
+        {
+            if (item == null) return;
+            await PurchaseItemAsync(item);
+        });
     }
 
     // -------------------------
@@ -128,7 +163,23 @@ public class MainViewModel : INotifyPropertyChanged
     public double HungerProgress => Hunger / (double)StatMax;
     public double HappinessProgress => Happiness / (double)StatMax;
     public double HealthProgress => Health / (double)StatMax;
+    
+    public ObservableCollection<ShopItem> ShopItems { get; } = new();
+    public ObservableCollection<ShopCategory> ShopCategories { get; } = new();
+    public ObservableCollection<ShopItem> VisibleShopItems { get; } = new();
 
+    private ShopCategory? _selectedShopCategory;
+    public ShopCategory? SelectedShopCategory
+    {
+        get => _selectedShopCategory;
+        set
+        {
+            if (_selectedShopCategory == value) return;
+            _selectedShopCategory = value;
+            OnPropertyChanged();
+            UpdateVisibleShopItems();
+        }
+    }
     // SKLottieView Source icin
     public SKLottieImageSource LottieSource =>
         new SKFileLottieImageSource { File = Pet.CurrentAnimation };
@@ -163,7 +214,8 @@ public class MainViewModel : INotifyPropertyChanged
     public bool CanCancel => IsSessionRunning;
     
     //focus'da arkadaki buton gizlensin
-    public bool IsBottomBarVisible => !IsSessionRunning && !IsDurationPickerVisible;
+    public bool IsBottomBarVisible => !IsSessionRunning && !IsDurationPickerVisible && !IsShopVisible;
+    //public bool IsBottomBarVisible => !IsSessionRunning && !IsDurationPickerVisible;
 
 
     public string RemainingTimeText =>
@@ -187,6 +239,8 @@ public class MainViewModel : INotifyPropertyChanged
                 loaded.CurrentAnimation = "standing_cat.json";
 
             Pet = loaded;
+            //StartStatDecayLoop();
+            EnsureShopCatalog();
             StartStatDecayLoop();
 
         }
@@ -326,6 +380,284 @@ public class MainViewModel : INotifyPropertyChanged
         await _dataService.SavePetAsync(Pet);
     }
     
+      private void EnsureShopCatalog()
+    {
+        if (ShopItems.Count > 0)
+        {
+            return;
+        }
+
+        ShopCategories.Add(new ShopCategory { Id = "food", Name = "Mama" });
+        ShopCategories.Add(new ShopCategory { Id = "toy", Name = "Oyuncak" });
+        ShopCategories.Add(new ShopCategory { Id = "health", Name = "Sağlık" });
+        ShopCategories.Add(new ShopCategory { Id = "furniture", Name = "Ev Eşyası" });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "food.basic",
+            Name = "Tavuklu Mama",
+            Description = "Tokluk +10",
+            Price = 10,
+            Icon = "🍗",
+            Type = ItemType.Food,
+            CategoryId = "food",
+            PlaceInRoom = false,
+            HungerEffect = 10
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "food.beef",
+            Name = "Biftekli Mama",
+            Description = "Tokluk +12",
+            Price = 14,
+            Icon = "🥩",
+            Type = ItemType.Food,
+            CategoryId = "food",
+            PlaceInRoom = false,
+            HungerEffect = 12
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "food.salmon",
+            Name = "Somonlu Mama",
+            Description = "Tokluk +14",
+            Price = 16,
+            Icon = "🐟",
+            Type = ItemType.Food,
+            CategoryId = "food",
+            PlaceInRoom = false,
+            HungerEffect = 14
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "food.treats",
+            Name = "Ödül Maması",
+            Description = "Tokluk +6",
+            Price = 8,
+            Icon = "🍪",
+            Type = ItemType.Food,
+            CategoryId = "food",
+            PlaceInRoom = false,
+            HungerEffect = 6
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "toy.scratch",
+            Name = "Tırmalama Tahtası",
+            Description = "Mutluluk +10",
+            Price = 18,
+            Icon = "🪵",
+            Type = ItemType.Toy,
+            CategoryId = "toy",
+            PlaceInRoom = true,
+            HappinessEffect = 10
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "toy.ball",
+            Name = "Top",
+            Description = "Mutluluk +8",
+            Price = 12,
+            Icon = "🎾",
+            Type = ItemType.Toy,
+            CategoryId = "toy",
+            PlaceInRoom = true,
+            HappinessEffect = 8
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "toy.rope",
+            Name = "İp Oyuncağı",
+            Description = "Mutluluk +7",
+            Price = 11,
+            Icon = "🧶",
+            Type = ItemType.Toy,
+            CategoryId = "toy",
+            PlaceInRoom = true,
+            HappinessEffect = 7
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "health.parasite",
+            Name = "Parazit Aşısı",
+            Description = "Sağlık +12",
+            Price = 16,
+            Icon = "💉",
+            Type = ItemType.Health,
+            CategoryId = "health",
+            PlaceInRoom = false,
+            HealthEffect = 12
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "health.rabies",
+            Name = "Kuduz Aşısı",
+            Description = "Sağlık +14",
+            Price = 18,
+            Icon = "🩺",
+            Type = ItemType.Health,
+            CategoryId = "health",
+            PlaceInRoom = false,
+            HealthEffect = 14
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "health.combo",
+            Name = "Karma Aşı",
+            Description = "Sağlık +16",
+            Price = 20,
+            Icon = "🧪",
+            Type = ItemType.Health,
+            CategoryId = "health",
+            PlaceInRoom = false,
+            HealthEffect = 16
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "health.neuter",
+            Name = "Kısırlaştırma",
+            Description = "Sağlık +20",
+            Price = 25,
+            Icon = "🏥",
+            Type = ItemType.Health,
+            CategoryId = "health",
+            PlaceInRoom = false,
+            HealthEffect = 20
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "furniture.bed",
+            Name = "Yatak",
+            Description = "Odaya yerleşir",
+            Price = 20,
+            Icon = "🛏️",
+            Type = ItemType.Furniture,
+            CategoryId = "furniture",
+            PlaceInRoom = true
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "furniture.bowl",
+            Name = "Mama Kabı",
+            Description = "Odaya yerleşir",
+            Price = 14,
+            Icon = "🥣",
+            Type = ItemType.Furniture,
+            CategoryId = "furniture",
+            PlaceInRoom = true
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "furniture.chair",
+            Name = "Kedi Koltuğu",
+            Description = "Odaya yerleşir",
+            Price = 22,
+            Icon = "🪑",
+            Type = ItemType.Furniture,
+            CategoryId = "furniture",
+            PlaceInRoom = true
+        });
+
+        ShopItems.Add(new ShopItem
+        {
+            Id = "furniture.rug",
+            Name = "Halı",
+            Description = "Odaya yerleşir",
+            Price = 18,
+            Icon = "🧺",
+            Type = ItemType.Furniture,
+            CategoryId = "furniture",
+            PlaceInRoom = true
+        });
+
+        SelectedShopCategory = ShopCategories.FirstOrDefault();
+        UpdateVisibleShopItems();
+    }
+      
+    private void UpdateCategorySelection()
+    {
+        foreach (var category in ShopCategories)
+        {
+            category.IsSelected = category == _selectedShopCategory;
+        }
+    }
+
+
+    private void UpdateVisibleShopItems()
+    {
+        VisibleShopItems.Clear();
+
+        if (SelectedShopCategory == null)
+        {
+            return;
+        }
+
+        foreach (var item in ShopItems.Where(item => item.CategoryId == SelectedShopCategory.Id))
+        {
+            VisibleShopItems.Add(item);
+        }
+    }
+
+    private async Task PurchaseItemAsync(ShopItem item)
+    {
+        if (Pet.PatiCoins < item.Price)
+        {
+            return;
+        }
+
+        Pet.PatiCoins -= item.Price;
+        Pet.OwnedItemIds.Add(item.Id);
+
+        if (item.PlaceInRoom)
+        {
+            var placement = new RoomItem
+            {
+                ItemId = item.Id,
+                Asset = item.Icon,
+                X = 0.2 + (Pet.RoomItems.Count % 3) * 0.2,
+                Y = 0.75
+            };
+            Pet.RoomItems.Add(placement);
+        }
+
+        var didChange = false;
+        var petHunger = Pet.Hunger;
+        var petHappiness = Pet.Happiness;
+        var petHealth = Pet.Health;
+
+        didChange |= AdjustStat(ref petHunger, item.HungerEffect);
+        didChange |= AdjustStat(ref petHappiness, item.HappinessEffect);
+        didChange |= AdjustStat(ref petHealth, item.HealthEffect);
+
+        if (didChange)
+        {
+            Pet.Hunger = petHunger;
+            Pet.Happiness = petHappiness;
+            Pet.Health = petHealth;
+        }
+
+        OnPropertyChanged(nameof(PatiCoinsText));
+        if (didChange)
+        {
+            OnPetStatsChanged();
+        }
+
+        await SavePetAsync();
+    }
+
     private void StartStatDecayLoop()
     {
         if (_statDecayCts != null)
@@ -342,22 +674,28 @@ public class MainViewModel : INotifyPropertyChanged
 
             while (await timer.WaitForNextTickAsync(token))
             {
+                var didChange = false;
                 var petHunger = Pet.Hunger;
                 var petHappiness = Pet.Happiness;
                 var petHealth = Pet.Health;
-                var didChange = AdjustStat(ref petHunger, -StatDecayAmount);
+
+                didChange |= AdjustStat(ref petHunger, -StatDecayAmount);
                 didChange |= AdjustStat(ref petHappiness, -StatDecayAmount);
                 didChange |= AdjustStat(ref petHealth, -StatDecayAmount);
-                
-                    if (didChange)
-                    {
-                        Pet.Hunger = petHunger;
-                        Pet.Happiness = petHappiness;
-                        Pet.Health = petHealth;
-                    }
-                
 
-                OnPetStatsChanged();
+                if (!didChange)
+                {
+                    continue;
+                }
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Pet.Hunger = petHunger;
+                    Pet.Happiness = petHappiness;
+                    Pet.Health = petHealth;
+                    OnPetStatsChanged();
+                });
+
                 await SavePetAsync();
             }
         }, token);

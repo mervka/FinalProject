@@ -19,6 +19,7 @@ public class ShopItem
     public int HungerEffect { get; set; }
     public int HappinessEffect { get; set; }
     public int HealthEffect { get; set; }
+    public string CategoryId { get; set; }
 }
 
 public enum ItemType
