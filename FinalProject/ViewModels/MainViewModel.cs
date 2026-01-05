@@ -37,6 +37,10 @@ public class MainViewModel : INotifyPropertyChanged
     private int _selectedMinutes = 25;
     private bool _isDurationPickerVisible;
     private bool _isShopVisible;
+    //private bool _isCalendarVisible; //takvim sonra eklenecek
+    private bool _isPurchaseToastVisible;
+    private string _purchaseToastTitle = string.Empty;
+    private string _purchaseToastDetail = string.Empty;
     
 
     // -------------------------
@@ -49,6 +53,8 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ShowShopCommand { get; }
     public ICommand HideShopCommand { get; }
     public ICommand BuyItemCommand { get; }
+    //public ICommand ShowCalendarCommand { get; }
+    //public ICommand HideCalendarCommand { get; }
     
     public bool IsDurationPickerVisible
     {
@@ -71,6 +77,19 @@ public class MainViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsBottomBarVisible));
         }
     }
+   
+   // public bool IsCalendarVisible
+  //  {
+   //     get => _isCalendarVisible;
+    //    set
+      //  {
+        //    if (_isCalendarVisible == value) return;
+          //  _isCalendarVisible = value;
+            //OnPropertyChanged();
+            //OnPropertyChanged(nameof(IsBottomBarVisible));
+       // }
+   // }
+    
 
     public ICommand ShowDurationPickerCommand { get; }
     public ICommand HideDurationPickerCommand { get; }
@@ -97,6 +116,8 @@ public class MainViewModel : INotifyPropertyChanged
         ShowDurationPickerCommand = new Command(() =>
         {
             if (IsSessionRunning) return;
+            IsShopVisible = false;
+            //IsCalendarVisible = false;
             IsDurationPickerVisible = true;
         });
 
@@ -140,6 +161,24 @@ public class MainViewModel : INotifyPropertyChanged
             if (item == null) return;
             await PurchaseItemAsync(item);
         });
+        
+       // ShowCalendarCommand = new Command(() =>
+        //{
+          //  if (IsSessionRunning) return;
+            //IsShopVisible = false;
+            //IsDurationPickerVisible = false;
+            //IsCalendarVisible = true;
+        //});
+
+        //HideCalendarCommand = new Command(() =>
+        //{
+          //  IsCalendarVisible = false;
+        //});
+
+        //HideCalendarCommand = new Command(() =>
+        //{
+          //  IsCalendarVisible = false;
+       // });
     }
 
     // -------------------------
@@ -158,6 +197,40 @@ public class MainViewModel : INotifyPropertyChanged
 
     public string PatiCoinsText => $"🐾 {Pet.PatiCoins} Pati";
     public string CurrentAnimation => Pet.CurrentAnimation;
+    
+    public bool IsPurchaseToastVisible
+    {
+        get => _isPurchaseToastVisible;
+        private set
+        {
+            if (_isPurchaseToastVisible == value) return;
+            _isPurchaseToastVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string PurchaseToastTitle
+    {
+        get => _purchaseToastTitle;
+        private set
+        {
+            if (_purchaseToastTitle == value) return;
+            _purchaseToastTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string PurchaseToastDetail
+    {
+        get => _purchaseToastDetail;
+        private set
+        {
+            if (_purchaseToastDetail == value) return;
+            _purchaseToastDetail = value;
+            OnPropertyChanged();
+        }
+    }
+    
     public int Hunger => Pet.Hunger;
     public int Happiness => Pet.Happiness;
     public int Health => Pet.Health;
@@ -169,6 +242,8 @@ public class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<ShopItem> ShopItems { get; } = new();
     public ObservableCollection<ShopCategory> ShopCategories { get; } = new();
     public ObservableCollection<ShopItem> VisibleShopItems { get; } = new();
+   // public ObservableCollection<DailyFocusSummary> FocusSummaries { get; } = new();
+
 
     private ShopCategory? _selectedShopCategory;
     public ShopCategory? SelectedShopCategory
@@ -243,6 +318,7 @@ public class MainViewModel : INotifyPropertyChanged
             Pet = loaded;
             ApplyOfflineStatDecay();
             EnsureShopCatalog();
+            //UpdateFocusSummaries(); 
             StartStatDecayLoop();
 
         }
@@ -255,7 +331,7 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     // -------------------------
-    // 5) Public Actions (Page/App buradan cagirsin)
+    // 5) Public Actions (App buradan cagirsin)
     // -------------------------
     public void CancelSession()
     {
@@ -306,8 +382,17 @@ public class MainViewModel : INotifyPropertyChanged
 
         Pet.PatiCoins += coins;
         Pet.TotalFocusMinutes += minutes;
+        Pet.FocusSessions.Add(new FocusSession
+        {
+            DurationMinutes = minutes,
+            CoinsEarned = coins,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now,
+            IsCompleted = true
+        });
 
         OnPropertyChanged(nameof(PatiCoinsText));
+        //UpdateFocusSummaries();
         await SavePetAsync();
     }
 
@@ -615,6 +700,25 @@ public class MainViewModel : INotifyPropertyChanged
             VisibleShopItems.Add(item);
         }
     }
+    
+   // private void UpdateFocusSummaries()
+    //{
+     //   FocusSummaries.Clear();
+
+      //  var summaries = Pet.FocusSessions
+        //    .GroupBy(session => session.StartTime.Date)
+          //  .OrderByDescending(group => group.Key)
+            //.Select(group => new DailyFocusSummary
+           // {
+             //   Date = group.Key,
+               // TotalMinutes = group.Sum(item => item.DurationMinutes)
+           // });
+
+        //foreach (var summary in summaries)
+        //{
+          //  FocusSummaries.Add(summary);
+        //}
+    //}
 
     private async Task PurchaseItemAsync(ShopItem item)
     {
@@ -661,6 +765,31 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
         await SavePetAsync();
+    }
+    
+    private async Task ShowPurchaseToastAsync(ShopItem item)
+    {
+        var statMessage = item.Type switch
+        {
+            ItemType.Food when item.HungerEffect > 0 => $"Tokluk +{item.HungerEffect}",
+            ItemType.Toy when item.HappinessEffect > 0 => $"Mutluluk +{item.HappinessEffect}",
+            ItemType.Health when item.HealthEffect > 0 => $"Sağlık +{item.HealthEffect}",
+            _ => item.PlaceInRoom ? "Odaya yerleştirildi" : "Satın alındı"
+        };
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            PurchaseToastTitle = $"✅ Satın alındı: {item.Name}";
+            PurchaseToastDetail = $"💚 {statMessage}";
+            IsPurchaseToastVisible = true;
+        });
+
+        await Task.Delay(2200);
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            IsPurchaseToastVisible = false;
+        });
     }
 
     private void StartStatDecayLoop()

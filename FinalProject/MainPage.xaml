@@ -294,7 +294,90 @@
                 </Grid>
             </Frame>
         </Grid>
+        
+        <!-- ======================================================
+             TOAST: Purchase confirmation
+        ======================================================= -->
+        <Grid Grid.RowSpan="3"
+              IsVisible="{Binding IsPurchaseToastVisible}"
+              InputTransparent="True">
+            <Frame Padding="12,8"
+                   CornerRadius="12"
+                   BackgroundColor="#F3EEE8"
+                   HasShadow="False"
+                   HorizontalOptions="Center"
+                   VerticalOptions="End"
+                   Margin="20,0,20,120">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding PurchaseToastTitle}"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="#4E342E"
+                           HorizontalOptions="Center"/>
+                    <Label Text="{Binding PurchaseToastDetail}"
+                           FontSize="12"
+                           TextColor="#6D4C41"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- ======================================================
+             OVERLAY: Calendar
+        
+        <Grid Grid.RowSpan="3"
+              IsVisible="{Binding IsCalendarVisible}">
 
+            <BoxView Color="Black" Opacity="0.55"/>
+
+            <Frame Padding="16"
+                   CornerRadius="20"
+                   BackgroundColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   WidthRequest="340"
+                   HeightRequest="440">
+                <Grid RowDefinitions="Auto,*"
+                      RowSpacing="12">
+                    <Grid Grid.Row="0"
+                          ColumnDefinitions="*,Auto">
+                        <Label Text="Takvim"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                        <Button Grid.Column="1"
+                                Text="✕"
+                                FontSize="12"
+                                Padding="6,2"
+                                HeightRequest="28"
+                                WidthRequest="28"
+                                BackgroundColor="#E0E0E0"
+                                CornerRadius="10"
+                                Command="{Binding HideCalendarCommand}"/>
+                    </Grid>
+
+                    <CollectionView Grid.Row="1"
+                                    ItemsSource="{Binding FocusSummaries}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto"
+                                      Padding="8">
+                                    <Label Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}"
+                                           FontAttributes="Bold"
+                                           TextColor="#5D4037"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding TotalMinutes, StringFormat='{0} dk'}"
+                                           TextColor="#8B4513"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Frame>
+        </Grid>
+        ======================================================= -->
+            
 
         <!-- ======================================================
              OVERLAY 1: Süre Seçimi
@@ -406,5 +489,5 @@
                     Margin="0,0,0,40"/>
         </Grid>
 
-    </Grid>
+    </Grid></Grid>
 </ContentPage>
