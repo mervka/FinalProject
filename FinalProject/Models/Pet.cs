@@ -8,6 +8,7 @@ public class Pet
     public int Hunger { get; set; } = 100;
     public int Happiness { get; set; } = 100;
     public int Health { get; set; } = 100;
+    public DateTime LastStatUpdateUtc { get; set; } = DateTime.UtcNow;
     public int PatiCoins { get; set; } = 0;
     public int TotalFocusMinutes { get; set; } = 0;
     public string CurrentAnimation { get; set; } = "standing_cat.json";

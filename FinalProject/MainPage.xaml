@@ -316,8 +316,11 @@
                            FontSize="18"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"/>
-
+                    
                     <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button Text="1"
+                                Command="{Binding SelectDurationCommand}"
+                                CommandParameter="1"/>
                         <Button Text="15"
                                 Command="{Binding SelectDurationCommand}"
                                 CommandParameter="15"/>
@@ -351,18 +354,18 @@
         <Grid Grid.RowSpan="3"
               IsVisible="{Binding IsSessionRunning}">
 
-            <!-- ✅ Alttaki UI görünmesin diye dim'i daha güçlü yaptım -->
+            <!-- Alttaki button görünmesin-->
             <BoxView Color="Black" Opacity="0.75"/>
 
             <Label Text="DON'T INTERRUPT ME!"
-                   TextColor="White"
+                   TextColor="Coral"
                    FontSize="22"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
                    VerticalOptions="Start"
-                   Margin="0,80,0,0"/>
+                   Margin="0,160,0,0"/>
 
-            <!-- ✅ Session sırasında pet + timer aynı katmanda (tek animasyon) -->
+            <!-- Session sırasında pet + timer görünsün-->
             <Grid HorizontalOptions="Center" VerticalOptions="Center">
 
                 <skia:SKLottieView
@@ -375,14 +378,15 @@
 
                 <VerticalStackLayout HorizontalOptions="Center"
                                      VerticalOptions="Center"
+                                     Margin="0,200,0,0"
                                      Spacing="6">
                     <Label Text="{Binding SessionTypeText}"
-                           TextColor="White"
+                           TextColor="Coral"
                            FontSize="18"
                            HorizontalOptions="Center"/>
 
                     <Label Text="{Binding RemainingTimeText}"
-                           TextColor="White"
+                           TextColor="#F5F5F5"
                            FontSize="48"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"/>

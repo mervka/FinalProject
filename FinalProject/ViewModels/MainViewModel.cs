@@ -16,8 +16,10 @@ public class MainViewModel : INotifyPropertyChanged
     private const int StatMax = 100;
     private const int StatMin = 0;
     private const int StatDecayAmount = 1;
-    private static readonly TimeSpan StatDecayInterval = TimeSpan.FromMinutes(10);
-
+    private const int OfflineDecayChunk = 10;
+    private static readonly TimeSpan StatDecayInterval = TimeSpan.FromMinutes(10); //DAKİKAYI SUNUMDAN ÖNCE DEĞİŞTİR!!!
+    private static readonly TimeSpan OfflineDecayInterval = TimeSpan.FromHours(2);
+    
     // -------------------------
     // 1) Services + State
     // -------------------------
@@ -239,7 +241,7 @@ public class MainViewModel : INotifyPropertyChanged
                 loaded.CurrentAnimation = "standing_cat.json";
 
             Pet = loaded;
-            //StartStatDecayLoop();
+            ApplyOfflineStatDecay();
             EnsureShopCatalog();
             StartStatDecayLoop();
 
@@ -288,16 +290,19 @@ public class MainViewModel : INotifyPropertyChanged
 
     public async Task AddCoinsAsync(int minutes)
     {
-        int coins = minutes switch
-        {
-            10 => 20,
-            20 => 30,
-            30 => 40,
-            40 => 50,
-            50 => 60,
-            60 => 80,
-            _ => 0
-        };
+        var coins = Math.Max(0, minutes);
+        
+        //int coins = minutes switch
+        //{
+
+            //10 => 20,
+            //20 => 30,
+            //30 => 40,
+            //40 => 50,
+            //50 => 60,
+            //60 => 80,
+            //_ => 0
+        //};
 
         Pet.PatiCoins += coins;
         Pet.TotalFocusMinutes += minutes;
@@ -674,6 +679,7 @@ public class MainViewModel : INotifyPropertyChanged
 
             while (await timer.WaitForNextTickAsync(token))
             {
+                Pet.LastStatUpdateUtc = DateTime.UtcNow;
                 var didChange = false;
                 var petHunger = Pet.Hunger;
                 var petHappiness = Pet.Happiness;
@@ -699,6 +705,52 @@ public class MainViewModel : INotifyPropertyChanged
                 await SavePetAsync();
             }
         }, token);
+    }
+    
+    private void ApplyOfflineStatDecay()
+    {
+        if (Pet.LastStatUpdateUtc == default)
+        {
+            Pet.LastStatUpdateUtc = DateTime.UtcNow;
+            return;
+        }
+
+        var elapsed = DateTime.UtcNow - Pet.LastStatUpdateUtc;
+        if (elapsed <= TimeSpan.Zero)
+        {
+            Pet.LastStatUpdateUtc = DateTime.UtcNow;
+            return;
+        }
+
+        var minuteDrops = (int)Math.Floor(elapsed.TotalMinutes);
+        var chunkDrops = (int)Math.Floor(elapsed.TotalHours / OfflineDecayInterval.TotalHours);
+        var totalDrop = minuteDrops * StatDecayAmount + chunkDrops * OfflineDecayChunk;
+
+        if (totalDrop <= 0)
+        {
+            Pet.LastStatUpdateUtc = DateTime.UtcNow;
+            return;
+        }
+
+        var didChange = false;
+        var petHunger = Pet.Hunger;
+        var petHappiness = Pet.Happiness;
+        var petHealth = Pet.Health;
+
+        didChange |= AdjustStat(ref petHunger, -totalDrop);
+        didChange |= AdjustStat(ref petHappiness, -totalDrop);
+        didChange |= AdjustStat(ref petHealth, -totalDrop);
+
+        if (didChange)
+        {
+            Pet.Hunger = petHunger;
+            Pet.Happiness = petHappiness;
+            Pet.Health = petHealth;
+            OnPetStatsChanged();
+        }
+
+        Pet.LastStatUpdateUtc = DateTime.UtcNow;
+        _ = SavePetAsync();
     }
 
     private static int ClampStat(int value)
