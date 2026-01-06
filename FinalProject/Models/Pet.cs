@@ -8,12 +8,12 @@ public class Pet
     public int Hunger { get; set; } = 100;
     public int Happiness { get; set; } = 100;
     public int Health { get; set; } = 100;
-    public DateTime LastStatUpdateUtc { get; set; } = DateTime.UtcNow;
+    public DateTime LastStatUpdateUtc { get; set; } = default;
     public int PatiCoins { get; set; } = 0;
     public int TotalFocusMinutes { get; set; } = 0;
     public string CurrentAnimation { get; set; } = "standing_cat.json";
     public List<string> OwnedItemIds { get; set; } = new();
-    public List<RoomItem> RoomItems { get; set; } = new();
+    //public List<RoomItem> RoomItems { get; set; } = new();
     public List<FocusSession> FocusSessions { get; set; } = new();
     
     

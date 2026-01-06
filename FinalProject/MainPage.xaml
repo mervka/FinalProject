@@ -296,139 +296,65 @@
         </Grid>
         
         <!-- ======================================================
-             TOAST: Purchase confirmation
-        ======================================================= -->
-        <Grid Grid.RowSpan="3"
-              IsVisible="{Binding IsPurchaseToastVisible}"
-              InputTransparent="True">
-            <Frame Padding="12,8"
-                   CornerRadius="12"
-                   BackgroundColor="#F3EEE8"
-                   HasShadow="False"
-                   HorizontalOptions="Center"
-                   VerticalOptions="End"
-                   Margin="20,0,20,120">
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="{Binding PurchaseToastTitle}"
-                           FontSize="14"
-                           FontAttributes="Bold"
-                           TextColor="#4E342E"
-                           HorizontalOptions="Center"/>
-                    <Label Text="{Binding PurchaseToastDetail}"
-                           FontSize="12"
-                           TextColor="#6D4C41"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Frame>
-            
-            <!-- ======================================================
-             OVERLAY: Calendar
-        
-        <Grid Grid.RowSpan="3"
-              IsVisible="{Binding IsCalendarVisible}">
+     OVERLAY 1: Süre Seçimi
+======================================================= -->
+<Grid Grid.RowSpan="3"
+      ZIndex="50"
+      InputTransparent="False"
+      IsVisible="{Binding IsDurationPickerVisible}">
 
-            <BoxView Color="Black" Opacity="0.55"/>
+    <!-- Arka plan karartma: tıklama yemesin -->
+    <BoxView Color="Black"
+             Opacity="0.55"
+             InputTransparent="True"
+             ZIndex="50"/>
 
-            <Frame Padding="16"
-                   CornerRadius="20"
-                   BackgroundColor="White"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   WidthRequest="340"
-                   HeightRequest="440">
-                <Grid RowDefinitions="Auto,*"
-                      RowSpacing="12">
-                    <Grid Grid.Row="0"
-                          ColumnDefinitions="*,Auto">
-                        <Label Text="Takvim"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                        <Button Grid.Column="1"
-                                Text="✕"
-                                FontSize="12"
-                                Padding="6,2"
-                                HeightRequest="28"
-                                WidthRequest="28"
-                                BackgroundColor="#E0E0E0"
-                                CornerRadius="10"
-                                Command="{Binding HideCalendarCommand}"/>
-                    </Grid>
+    <!-- Popup: en üstte -->
+    <Frame Padding="16"
+           CornerRadius="20"
+           BackgroundColor="White"
+           HorizontalOptions="Center"
+           VerticalOptions="Center"
+           WidthRequest="300"
+           ZIndex="51"
+           InputTransparent="False">
 
-                    <CollectionView Grid.Row="1"
-                                    ItemsSource="{Binding FocusSummaries}"
-                                    SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto"
-                                      Padding="8">
-                                    <Label Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}"
-                                           FontAttributes="Bold"
-                                           TextColor="#5D4037"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding TotalMinutes, StringFormat='{0} dk'}"
-                                           TextColor="#8B4513"/>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </Grid>
-            </Frame>
-        </Grid>
-        ======================================================= -->
-            
+        <VerticalStackLayout Spacing="12">
+            <Label Text="Süre Seç"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
 
-        <!-- ======================================================
-             OVERLAY 1: Süre Seçimi
-        ======================================================= -->
-        <Grid Grid.RowSpan="3"
-              IsVisible="{Binding IsDurationPickerVisible}">
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Button Text="1"
+                        Command="{Binding BindingContext.SelectDurationCommand, Source={x:Reference MainPageView}}"
+                        CommandParameter="1"/>
+                <Button Text="15"
+                        Command="{Binding BindingContext.SelectDurationCommand, Source={x:Reference MainPageView}}"
+                        CommandParameter="15"/>
+                <Button Text="25"
+                        Command="{Binding BindingContext.SelectDurationCommand, Source={x:Reference MainPageView}}"
+                        CommandParameter="25"/>
+                <Button Text="50"
+                        Command="{Binding BindingContext.SelectDurationCommand, Source={x:Reference MainPageView}}"
+                        CommandParameter="50"/>
+            </HorizontalStackLayout>
 
-            <BoxView Color="Black" Opacity="0.55"/>
+            <Label Text="{Binding SelectedMinutes, StringFormat='Seçilen: {0} dk'}"
+                   HorizontalOptions="Center"/>
 
-            <Frame Padding="16"
-                   CornerRadius="20"
-                   BackgroundColor="White"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   WidthRequest="300">
+            <Button Text="START"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"
+                    Command="{Binding BindingContext.StartFromPickerCommand, Source={x:Reference MainPageView}}"/>
 
-                <VerticalStackLayout Spacing="12">
-                    <Label Text="Süre Seç"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-                    
-                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                        <Button Text="1"
-                                Command="{Binding SelectDurationCommand}"
-                                CommandParameter="1"/>
-                        <Button Text="15"
-                                Command="{Binding SelectDurationCommand}"
-                                CommandParameter="15"/>
-                        <Button Text="25"
-                                Command="{Binding SelectDurationCommand}"
-                                CommandParameter="25"/>
-                        <Button Text="50"
-                                Command="{Binding SelectDurationCommand}"
-                                CommandParameter="50"/>
-                    </HorizontalStackLayout>
-
-                    <Label Text="{Binding SelectedMinutes, StringFormat='Seçilen: {0} dk'}"
-                           HorizontalOptions="Center"/>
-
-                    <Button Text="START"
-                            BackgroundColor="#4CAF50"
-                            TextColor="White"
-                            Command="{Binding StartFromPickerCommand}"/>
-
-                    <Button Text="BACK"
-                            BackgroundColor="Firebrick"
-                            Command="{Binding HideDurationPickerCommand}"/>
-                </VerticalStackLayout>
-            </Frame>
-        </Grid>
+            <Button Text="BACK"
+                    BackgroundColor="Firebrick"
+                    TextColor="White"
+                    Command="{Binding BindingContext.HideDurationPickerCommand, Source={x:Reference MainPageView}}"/>
+        </VerticalStackLayout>
+    </Frame>
+</Grid>
 
 
         <!-- ======================================================
@@ -437,7 +363,6 @@
         <Grid Grid.RowSpan="3"
               IsVisible="{Binding IsSessionRunning}">
 
-            <!-- Alttaki button görünmesin-->
             <BoxView Color="Black" Opacity="0.75"/>
 
             <Label Text="DON'T INTERRUPT ME!"
@@ -469,12 +394,11 @@
                            HorizontalOptions="Center"/>
 
                     <Label Text="{Binding RemainingTimeText}"
-                           TextColor="#F5F5F5"
+                           TextColor="Wheat"
                            FontSize="48"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
-
             </Grid>
 
             <Button Text="CANCEL"
@@ -488,6 +412,8 @@
                     VerticalOptions="End"
                     Margin="0,0,0,40"/>
         </Grid>
-
-    </Grid></Grid>
+    </Grid>
 </ContentPage>
+
+    
+

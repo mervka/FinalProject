@@ -7,19 +7,26 @@ namespace FinalProject.Services;
 public class DataService
 {
     private const string PetKey = "pet_data";
+    private const string PetKeyPrefs = "pet_data_prefs";
 
     public async Task<Pet> LoadPetAsync()
     {
+        string? json = null;
+
         try
         {
-            var json = await SecureStorage.GetAsync(PetKey);
-            
-            if (string.IsNullOrEmpty(json))
-            {
-                return new Pet();
-            }
-            
-            //return JsonSerializer.Deserialize<Pet>(json) ?? new Pet();
+            json = await SecureStorage.GetAsync(PetKey);
+        }
+        catch { /* ignore */ }
+
+        if (string.IsNullOrWhiteSpace(json))
+            json = Preferences.Get(PetKeyPrefs, null);
+
+        if (string.IsNullOrWhiteSpace(json))
+            return new Pet();
+
+        try
+        {
             var pet = JsonSerializer.Deserialize<Pet>(json) ?? new Pet();
             EnsureCollections(pet);
             return pet;
@@ -32,29 +39,31 @@ public class DataService
 
     public async Task SavePetAsync(Pet pet)
     {
+        EnsureCollections(pet);
+        var json = JsonSerializer.Serialize(pet);
+
+        Preferences.Set(PetKeyPrefs, json);
+
         try
         {
-            EnsureCollections(pet);
-            var json = JsonSerializer.Serialize(pet);
             await SecureStorage.SetAsync(PetKey, json);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Save error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"SecureStorage save error: {ex.Message}");
         }
     }
 
-    public async Task ResetDataAsync()
+    public Task ResetDataAsync()
     {
         SecureStorage.Remove(PetKey);
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
+
     
-    // Keeps deserialized lists non-null for clean binding and saving.
     private static void EnsureCollections(Pet pet)
     {
         pet.OwnedItemIds ??= new List<string>();
-        pet.RoomItems ??= new List<RoomItem>();
         pet.FocusSessions ??= new List<FocusSession>();
     }
 }

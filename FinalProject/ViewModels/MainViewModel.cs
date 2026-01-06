@@ -17,12 +17,20 @@ public class MainViewModel : INotifyPropertyChanged
     private const int StatMin = 0;
     private const int StatDecayAmount = 1;
     private const int OfflineDecayChunk = 10;
-    private static readonly TimeSpan StatDecayInterval = TimeSpan.FromMinutes(10); //DAKİKAYI SUNUMDAN ÖNCE DEĞİŞTİR!!!
+    private static readonly TimeSpan StatDecayInterval = TimeSpan.FromMinutes(1); //DAKİKAYI SUNUMDAN ÖNCE DEĞİŞTİR!!!
     private static readonly TimeSpan OfflineDecayInterval = TimeSpan.FromHours(2);
     
+    private static class Animations
+    {
+        public const string Idle = "standing_cat.json";
+        public const string Focus = "sleeping_loader_cat.json";
+        public const string Break = "cat paw loading.json";
+    }
+
     // -------------------------
     // 1) Services + State
     // -------------------------
+    
     private readonly DataService _dataService = new();
 
     private Pet _pet = new();
@@ -37,10 +45,9 @@ public class MainViewModel : INotifyPropertyChanged
     private int _selectedMinutes = 25;
     private bool _isDurationPickerVisible;
     private bool _isShopVisible;
-    //private bool _isCalendarVisible; //takvim sonra eklenecek
-    private bool _isPurchaseToastVisible;
-    private string _purchaseToastTitle = string.Empty;
-    private string _purchaseToastDetail = string.Empty;
+    //private bool _isPurchaseToastVisible;
+    //private string _purchaseToastTitle = string.Empty;
+    //private string _purchaseToastDetail = string.Empty;
     
 
     // -------------------------
@@ -53,8 +60,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ShowShopCommand { get; }
     public ICommand HideShopCommand { get; }
     public ICommand BuyItemCommand { get; }
-    //public ICommand ShowCalendarCommand { get; }
-    //public ICommand HideCalendarCommand { get; }
+    
     
     public bool IsDurationPickerVisible
     {
@@ -77,18 +83,6 @@ public class MainViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsBottomBarVisible));
         }
     }
-   
-   // public bool IsCalendarVisible
-  //  {
-   //     get => _isCalendarVisible;
-    //    set
-      //  {
-        //    if (_isCalendarVisible == value) return;
-          //  _isCalendarVisible = value;
-            //OnPropertyChanged();
-            //OnPropertyChanged(nameof(IsBottomBarVisible));
-       // }
-   // }
     
 
     public ICommand ShowDurationPickerCommand { get; }
@@ -116,8 +110,6 @@ public class MainViewModel : INotifyPropertyChanged
         ShowDurationPickerCommand = new Command(() =>
         {
             if (IsSessionRunning) return;
-            IsShopVisible = false;
-            //IsCalendarVisible = false;
             IsDurationPickerVisible = true;
         });
 
@@ -161,24 +153,6 @@ public class MainViewModel : INotifyPropertyChanged
             if (item == null) return;
             await PurchaseItemAsync(item);
         });
-        
-       // ShowCalendarCommand = new Command(() =>
-        //{
-          //  if (IsSessionRunning) return;
-            //IsShopVisible = false;
-            //IsDurationPickerVisible = false;
-            //IsCalendarVisible = true;
-        //});
-
-        //HideCalendarCommand = new Command(() =>
-        //{
-          //  IsCalendarVisible = false;
-        //});
-
-        //HideCalendarCommand = new Command(() =>
-        //{
-          //  IsCalendarVisible = false;
-       // });
     }
 
     // -------------------------
@@ -197,40 +171,6 @@ public class MainViewModel : INotifyPropertyChanged
 
     public string PatiCoinsText => $"🐾 {Pet.PatiCoins} Pati";
     public string CurrentAnimation => Pet.CurrentAnimation;
-    
-    public bool IsPurchaseToastVisible
-    {
-        get => _isPurchaseToastVisible;
-        private set
-        {
-            if (_isPurchaseToastVisible == value) return;
-            _isPurchaseToastVisible = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string PurchaseToastTitle
-    {
-        get => _purchaseToastTitle;
-        private set
-        {
-            if (_purchaseToastTitle == value) return;
-            _purchaseToastTitle = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string PurchaseToastDetail
-    {
-        get => _purchaseToastDetail;
-        private set
-        {
-            if (_purchaseToastDetail == value) return;
-            _purchaseToastDetail = value;
-            OnPropertyChanged();
-        }
-    }
-    
     public int Hunger => Pet.Hunger;
     public int Happiness => Pet.Happiness;
     public int Health => Pet.Health;
@@ -242,7 +182,6 @@ public class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<ShopItem> ShopItems { get; } = new();
     public ObservableCollection<ShopCategory> ShopCategories { get; } = new();
     public ObservableCollection<ShopItem> VisibleShopItems { get; } = new();
-   // public ObservableCollection<DailyFocusSummary> FocusSummaries { get; } = new();
 
 
     private ShopCategory? _selectedShopCategory;
@@ -254,6 +193,8 @@ public class MainViewModel : INotifyPropertyChanged
             if (_selectedShopCategory == value) return;
             _selectedShopCategory = value;
             OnPropertyChanged();
+            
+            UpdateCategorySelection();
             UpdateVisibleShopItems();
         }
     }
@@ -292,8 +233,6 @@ public class MainViewModel : INotifyPropertyChanged
     
     //focus'da arkadaki buton gizlensin
     public bool IsBottomBarVisible => !IsSessionRunning && !IsDurationPickerVisible && !IsShopVisible;
-    //public bool IsBottomBarVisible => !IsSessionRunning && !IsDurationPickerVisible;
-
 
     public string RemainingTimeText =>
         $"{(int)_remainingTime.TotalMinutes:00}:{_remainingTime.Seconds:00}";
@@ -313,13 +252,23 @@ public class MainViewModel : INotifyPropertyChanged
             var loaded = await _dataService.LoadPetAsync();
 
             if (string.IsNullOrWhiteSpace(loaded.CurrentAnimation))
-                loaded.CurrentAnimation = "standing_cat.json";
-
+                loaded.CurrentAnimation = Animations.Idle;
+            
             Pet = loaded;
+            
+            if (Pet.LastStatUpdateUtc == default)
+                Pet.LastStatUpdateUtc = DateTime.UtcNow;
+            
+            ChangeAnimation(Animations.Idle, persist: false);
+            OnPropertyChanged(nameof(CurrentAnimation));
+            OnPropertyChanged(nameof(LottieSource));
+
             ApplyOfflineStatDecay();
             EnsureShopCatalog();
-            //UpdateFocusSummaries(); 
             StartStatDecayLoop();
+            
+            _ = SavePetAsync(); //Sunumda problem yaşamamak için
+
 
         }
         catch (Exception ex)
@@ -346,7 +295,7 @@ public class MainViewModel : INotifyPropertyChanged
         _remainingTime = TimeSpan.Zero;
         OnPropertyChanged(nameof(RemainingTimeText));
 
-        ChangeAnimation("standing_cat.json", persist: false);
+        ChangeAnimation(Animations.Idle, persist: false);
 
         IsSessionRunning = false;
     }
@@ -382,17 +331,8 @@ public class MainViewModel : INotifyPropertyChanged
 
         Pet.PatiCoins += coins;
         Pet.TotalFocusMinutes += minutes;
-        Pet.FocusSessions.Add(new FocusSession
-        {
-            DurationMinutes = minutes,
-            CoinsEarned = coins,
-            StartTime = DateTime.Now,
-            EndTime = DateTime.Now,
-            IsCompleted = true
-        });
 
         OnPropertyChanged(nameof(PatiCoinsText));
-        //UpdateFocusSummaries();
         await SavePetAsync();
     }
 
@@ -414,24 +354,25 @@ public class MainViewModel : INotifyPropertyChanged
             _isBreakSession = false;
             OnPropertyChanged(nameof(SessionTypeText));
 
-            ChangeAnimation("sleeping_loader_cat.json", persist: false);
+            ChangeAnimation(Animations.Focus, persist: false);
 
             await RunCountdownAsync(TimeSpan.FromMinutes(SelectedMinutes), token);
 
             await AddCoinsAsync(SelectedMinutes);
 
-            // Break (5 dk)
+            // Break (5 dk) ----- bura direkt acikliyor, kullaniciya sorulup acilma olarak değisebilir...zaman yeterse BAK
             _isBreakSession = true;
             OnPropertyChanged(nameof(SessionTypeText));
 
-            ChangeAnimation("cat paw loading.json", persist: false);
+            ChangeAnimation(Animations.Break, persist: false);
+            //animasyona tekrar bak -değisebilir-
 
             await RunCountdownAsync(TimeSpan.FromMinutes(5), token);
         }
         catch (OperationCanceledException)
         {
             // cancel olunca sadece toparla
-            ChangeAnimation("standing_cat.json", persist: false);
+            ChangeAnimation(Animations.Idle, persist: false);
         }
         finally
         {
@@ -443,7 +384,7 @@ public class MainViewModel : INotifyPropertyChanged
             _remainingTime = TimeSpan.Zero;
             OnPropertyChanged(nameof(RemainingTimeText));
 
-            ChangeAnimation("standing_cat.json", persist: false);
+            ChangeAnimation(Animations.Idle, persist: false);
         }
     }
 
@@ -491,7 +432,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🍗",
             Type = ItemType.Food,
             CategoryId = "food",
-            PlaceInRoom = false,
             HungerEffect = 10
         });
 
@@ -504,7 +444,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🥩",
             Type = ItemType.Food,
             CategoryId = "food",
-            PlaceInRoom = false,
             HungerEffect = 12
         });
 
@@ -517,7 +456,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🐟",
             Type = ItemType.Food,
             CategoryId = "food",
-            PlaceInRoom = false,
             HungerEffect = 14
         });
 
@@ -530,7 +468,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🍪",
             Type = ItemType.Food,
             CategoryId = "food",
-            PlaceInRoom = false,
             HungerEffect = 6
         });
 
@@ -543,7 +480,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🪵",
             Type = ItemType.Toy,
             CategoryId = "toy",
-            PlaceInRoom = true,
             HappinessEffect = 10
         });
 
@@ -556,7 +492,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🎾",
             Type = ItemType.Toy,
             CategoryId = "toy",
-            PlaceInRoom = true,
             HappinessEffect = 8
         });
 
@@ -569,7 +504,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🧶",
             Type = ItemType.Toy,
             CategoryId = "toy",
-            PlaceInRoom = true,
             HappinessEffect = 7
         });
 
@@ -582,7 +516,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "💉",
             Type = ItemType.Health,
             CategoryId = "health",
-            PlaceInRoom = false,
             HealthEffect = 12
         });
 
@@ -595,7 +528,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🩺",
             Type = ItemType.Health,
             CategoryId = "health",
-            PlaceInRoom = false,
             HealthEffect = 14
         });
 
@@ -608,7 +540,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🧪",
             Type = ItemType.Health,
             CategoryId = "health",
-            PlaceInRoom = false,
             HealthEffect = 16
         });
 
@@ -621,7 +552,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🏥",
             Type = ItemType.Health,
             CategoryId = "health",
-            PlaceInRoom = false,
             HealthEffect = 20
         });
 
@@ -634,7 +564,7 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🛏️",
             Type = ItemType.Furniture,
             CategoryId = "furniture",
-            PlaceInRoom = true
+            
         });
 
         ShopItems.Add(new ShopItem
@@ -646,7 +576,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🥣",
             Type = ItemType.Furniture,
             CategoryId = "furniture",
-            PlaceInRoom = true
         });
 
         ShopItems.Add(new ShopItem
@@ -658,7 +587,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🪑",
             Type = ItemType.Furniture,
             CategoryId = "furniture",
-            PlaceInRoom = true
         });
 
         ShopItems.Add(new ShopItem
@@ -670,7 +598,6 @@ public class MainViewModel : INotifyPropertyChanged
             Icon = "🧺",
             Type = ItemType.Furniture,
             CategoryId = "furniture",
-            PlaceInRoom = true
         });
 
         SelectedShopCategory = ShopCategories.FirstOrDefault();
@@ -700,25 +627,6 @@ public class MainViewModel : INotifyPropertyChanged
             VisibleShopItems.Add(item);
         }
     }
-    
-   // private void UpdateFocusSummaries()
-    //{
-     //   FocusSummaries.Clear();
-
-      //  var summaries = Pet.FocusSessions
-        //    .GroupBy(session => session.StartTime.Date)
-          //  .OrderByDescending(group => group.Key)
-            //.Select(group => new DailyFocusSummary
-           // {
-             //   Date = group.Key,
-               // TotalMinutes = group.Sum(item => item.DurationMinutes)
-           // });
-
-        //foreach (var summary in summaries)
-        //{
-          //  FocusSummaries.Add(summary);
-        //}
-    //}
 
     private async Task PurchaseItemAsync(ShopItem item)
     {
@@ -729,18 +637,6 @@ public class MainViewModel : INotifyPropertyChanged
 
         Pet.PatiCoins -= item.Price;
         Pet.OwnedItemIds.Add(item.Id);
-
-        if (item.PlaceInRoom)
-        {
-            var placement = new RoomItem
-            {
-                ItemId = item.Id,
-                Asset = item.Icon,
-                X = 0.2 + (Pet.RoomItems.Count % 3) * 0.2,
-                Y = 0.75
-            };
-            Pet.RoomItems.Add(placement);
-        }
 
         var didChange = false;
         var petHunger = Pet.Hunger;
@@ -766,31 +662,6 @@ public class MainViewModel : INotifyPropertyChanged
 
         await SavePetAsync();
     }
-    
-    private async Task ShowPurchaseToastAsync(ShopItem item)
-    {
-        var statMessage = item.Type switch
-        {
-            ItemType.Food when item.HungerEffect > 0 => $"Tokluk +{item.HungerEffect}",
-            ItemType.Toy when item.HappinessEffect > 0 => $"Mutluluk +{item.HappinessEffect}",
-            ItemType.Health when item.HealthEffect > 0 => $"Sağlık +{item.HealthEffect}",
-            _ => item.PlaceInRoom ? "Odaya yerleştirildi" : "Satın alındı"
-        };
-
-        await MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            PurchaseToastTitle = $"✅ Satın alındı: {item.Name}";
-            PurchaseToastDetail = $"💚 {statMessage}";
-            IsPurchaseToastVisible = true;
-        });
-
-        await Task.Delay(2200);
-
-        await MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            IsPurchaseToastVisible = false;
-        });
-    }
 
     private void StartStatDecayLoop()
     {
@@ -808,7 +679,7 @@ public class MainViewModel : INotifyPropertyChanged
 
             while (await timer.WaitForNextTickAsync(token))
             {
-                Pet.LastStatUpdateUtc = DateTime.UtcNow;
+                //Pet.LastStatUpdateUtc = DateTime.UtcNow; //TEST ET ONA GORE UYGULA!!!!!
                 var didChange = false;
                 var petHunger = Pet.Hunger;
                 var petHappiness = Pet.Happiness;
@@ -828,6 +699,8 @@ public class MainViewModel : INotifyPropertyChanged
                     Pet.Hunger = petHunger;
                     Pet.Happiness = petHappiness;
                     Pet.Health = petHealth;
+                    
+                    Pet.LastStatUpdateUtc = DateTime.UtcNow;
                     OnPetStatsChanged();
                 });
 
@@ -838,26 +711,30 @@ public class MainViewModel : INotifyPropertyChanged
     
     private void ApplyOfflineStatDecay()
     {
+        var now = DateTime.UtcNow;
+        
         if (Pet.LastStatUpdateUtc == default)
         {
             Pet.LastStatUpdateUtc = DateTime.UtcNow;
             return;
         }
 
-        var elapsed = DateTime.UtcNow - Pet.LastStatUpdateUtc;
+        var elapsed = now - Pet.LastStatUpdateUtc;
         if (elapsed <= TimeSpan.Zero)
         {
-            Pet.LastStatUpdateUtc = DateTime.UtcNow;
+            Pet.LastStatUpdateUtc = now;
             return;
         }
+        
+        //DEGİSİKLİKLERİ KONTROL ET!!!!!!!!!!!!
+        var chunks = (int)(elapsed.TotalHours / OfflineDecayInterval.TotalHours); 
+        var totalDrop = chunks * OfflineDecayChunk; 
 
-        var minuteDrops = (int)Math.Floor(elapsed.TotalMinutes);
-        var chunkDrops = (int)Math.Floor(elapsed.TotalHours / OfflineDecayInterval.TotalHours);
-        var totalDrop = minuteDrops * StatDecayAmount + chunkDrops * OfflineDecayChunk;
+        //var minuteDrops = (int)Math.Floor(elapsed.TotalMinutes);
+        //var totalDrop = minuteDrops * StatDecayAmount + chunkDrops * OfflineDecayChunk;
 
         if (totalDrop <= 0)
         {
-            Pet.LastStatUpdateUtc = DateTime.UtcNow;
             return;
         }
 
@@ -878,7 +755,8 @@ public class MainViewModel : INotifyPropertyChanged
             OnPetStatsChanged();
         }
 
-        Pet.LastStatUpdateUtc = DateTime.UtcNow;
+        Pet.LastStatUpdateUtc = Pet.LastStatUpdateUtc.AddHours(chunks * OfflineDecayInterval.TotalHours);
+        //Pet.LastStatUpdateUtc = DateTime.UtcNow;
         _ = SavePetAsync();
     }
 
