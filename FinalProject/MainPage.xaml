@@ -158,7 +158,8 @@
             <Button Grid.Column="2"
                     Text="📊"
                     FontSize="22"
-                    BackgroundColor="Transparent"/>
+                    BackgroundColor="Transparent"
+                    Command="{Binding ShowHistoryCommand}"/> 
         </Grid>
         
            <!-- ======================================================
@@ -294,6 +295,73 @@
                 </Grid>
             </Frame>
         </Grid>
+        
+        <!-- ======================================================
+     OVERLAY: History
+    ======================================================= -->
+<Grid Grid.RowSpan="3"
+      IsVisible="{Binding IsHistoryVisible}">
+
+    <BoxView Color="Black" Opacity="0.55"/>
+
+    <Frame Padding="16"
+           CornerRadius="20"
+           BackgroundColor="White"
+           HorizontalOptions="Center"
+           VerticalOptions="Center"
+           WidthRequest="400"
+           HeightRequest="560">
+
+        <Grid RowDefinitions="Auto,*"
+              RowSpacing="12">
+
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="*,Auto">
+                <Label Text="History"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+
+                <Button Grid.Column="1"
+                        Text="✕"
+                        FontSize="12"
+                        Padding="6,2"
+                        HeightRequest="28"
+                        WidthRequest="28"
+                        BackgroundColor="#E0E0E0"
+                        CornerRadius="10"
+                        Command="{Binding HideHistoryCommand}"/>
+            </Grid>
+
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding FocusHistory}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="12"
+                               CornerRadius="12"
+                               HasShadow="False"
+                               BackgroundColor="#F9F6F1"
+                               Margin="0,6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding DateText}"
+                                       FontAttributes="Bold"
+                                       FontSize="14"/>
+                                <Label Grid.Column="1"
+                                       Text="{Binding TotalMinutes, StringFormat='{0} dk'}"
+                                       FontSize="14"
+                                       TextColor="#8B4513"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
+    </Frame>
+</Grid>
+
         
         <!-- ======================================================
      OVERLAY 1: Süre Seçimi

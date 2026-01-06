@@ -2,9 +2,6 @@ namespace FinalProject.Models;
 
 public class FocusSession
 {
-    public int DurationMinutes { get; set; }
-    public int CoinsEarned { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime? EndTime { get; set; }
-    public bool IsCompleted { get; set; } 
+    public DateTime DateUtc { get; set; }   // gün bilgisi 
+    public int TotalMinutes { get; set; }        // o gün eklenen focus dakikası
 }

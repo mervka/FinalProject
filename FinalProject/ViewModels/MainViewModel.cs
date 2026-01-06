@@ -26,6 +26,14 @@ public class MainViewModel : INotifyPropertyChanged
         public const string Focus = "sleeping_loader_cat.json";
         public const string Break = "cat paw loading.json";
     }
+    
+    public class DailyFocusSummary
+    {
+        public DateTime Date { get; set; }
+        public int TotalMinutes { get; set; }
+        public string DateText => Date.ToString("dd MMM yyyy");
+    }
+
 
     // -------------------------
     // 1) Services + State
@@ -45,6 +53,8 @@ public class MainViewModel : INotifyPropertyChanged
     private int _selectedMinutes = 25;
     private bool _isDurationPickerVisible;
     private bool _isShopVisible;
+    private bool _isHistoryVisible;
+
     //private bool _isPurchaseToastVisible;
     //private string _purchaseToastTitle = string.Empty;
     //private string _purchaseToastDetail = string.Empty;
@@ -60,7 +70,9 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ShowShopCommand { get; }
     public ICommand HideShopCommand { get; }
     public ICommand BuyItemCommand { get; }
-    
+    public ICommand ShowHistoryCommand { get; }
+    public ICommand HideHistoryCommand { get; }
+
     
     public bool IsDurationPickerVisible
     {
@@ -84,6 +96,32 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
     
+    public bool IsHistoryVisible
+    {
+        get => _isHistoryVisible;
+        set
+        {
+            if (_isHistoryVisible == value) return;
+            _isHistoryVisible = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsBottomBarVisible));
+        }
+    }
+    
+    private void RefreshHistory()
+    {
+        FocusHistory.Clear();
+
+        foreach (var s in Pet.FocusSessions.OrderByDescending(x => x.DateUtc))
+        {
+            FocusHistory.Add(new DailyFocusSummary
+            {
+                Date = s.DateUtc,
+                TotalMinutes = s.TotalMinutes
+            });
+        }
+    }
+
 
     public ICommand ShowDurationPickerCommand { get; }
     public ICommand HideDurationPickerCommand { get; }
@@ -153,6 +191,19 @@ public class MainViewModel : INotifyPropertyChanged
             if (item == null) return;
             await PurchaseItemAsync(item);
         });
+        
+        ShowHistoryCommand = new Command(() =>
+        {
+            if (IsSessionRunning) return;
+            IsHistoryVisible = true;
+        });
+
+        HideHistoryCommand = new Command(() =>
+        {
+            IsHistoryVisible = false;
+        });
+
+        
     }
 
     // -------------------------
@@ -182,6 +233,9 @@ public class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<ShopItem> ShopItems { get; } = new();
     public ObservableCollection<ShopCategory> ShopCategories { get; } = new();
     public ObservableCollection<ShopItem> VisibleShopItems { get; } = new();
+    
+    public ObservableCollection<DailyFocusSummary> FocusHistory { get; } = new();
+
 
 
     private ShopCategory? _selectedShopCategory;
@@ -231,8 +285,12 @@ public class MainViewModel : INotifyPropertyChanged
     public bool CanStart => !IsSessionRunning;
     public bool CanCancel => IsSessionRunning;
     
-    //focus'da arkadaki buton gizlensin
-    public bool IsBottomBarVisible => !IsSessionRunning && !IsDurationPickerVisible && !IsShopVisible;
+    //focus'da arkadaki buton gizlensin ---- tek aktif overlay
+    public bool IsBottomBarVisible =>
+        !IsSessionRunning &&
+        !IsDurationPickerVisible &&
+        !IsShopVisible &&
+        !IsHistoryVisible;
 
     public string RemainingTimeText =>
         $"{(int)_remainingTime.TotalMinutes:00}:{_remainingTime.Seconds:00}";
@@ -266,6 +324,8 @@ public class MainViewModel : INotifyPropertyChanged
             ApplyOfflineStatDecay();
             EnsureShopCatalog();
             StartStatDecayLoop();
+            RefreshHistory();
+
             
             _ = SavePetAsync(); //Sunumda problem yaşamamak için
 
@@ -316,18 +376,6 @@ public class MainViewModel : INotifyPropertyChanged
     public async Task AddCoinsAsync(int minutes)
     {
         var coins = Math.Max(0, minutes);
-        
-        //int coins = minutes switch
-        //{
-
-            //10 => 20,
-            //20 => 30,
-            //30 => 40,
-            //40 => 50,
-            //50 => 60,
-            //60 => 80,
-            //_ => 0
-        //};
 
         Pet.PatiCoins += coins;
         Pet.TotalFocusMinutes += minutes;
@@ -335,6 +383,29 @@ public class MainViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(PatiCoinsText));
         await SavePetAsync();
     }
+    
+    private void AddFocusMinutesToToday(int minutes)
+    {
+        if (minutes <= 0) return;
+
+        var today = DateTime.UtcNow.Date;
+
+        var existing = Pet.FocusSessions.FirstOrDefault(x => x.DateUtc.Date == today);
+
+        if (existing != null)
+        {
+            existing.TotalMinutes += minutes;
+        }
+        else
+        {
+            Pet.FocusSessions.Add(new FocusSession
+            {
+                DateUtc = today,
+                TotalMinutes = minutes
+            });
+        }
+    }
+
 
     // -------------------------
     // 6) Timer Flow (Pomodoro)
@@ -357,8 +428,14 @@ public class MainViewModel : INotifyPropertyChanged
             ChangeAnimation(Animations.Focus, persist: false);
 
             await RunCountdownAsync(TimeSpan.FromMinutes(SelectedMinutes), token);
+            
+            AddFocusMinutesToToday(SelectedMinutes);
 
             await AddCoinsAsync(SelectedMinutes);
+            
+            await SavePetAsync();
+            
+            RefreshHistory(); //focus biter bitmez hisrtory güncellenir
 
             // Break (5 dk) ----- bura direkt acikliyor, kullaniciya sorulup acilma olarak değisebilir...zaman yeterse BAK
             _isBreakSession = true;
@@ -599,6 +676,7 @@ public class MainViewModel : INotifyPropertyChanged
             Type = ItemType.Furniture,
             CategoryId = "furniture",
         });
+        
 
         SelectedShopCategory = ShopCategories.FirstOrDefault();
         UpdateVisibleShopItems();
