@@ -87,15 +87,16 @@
         <AbsoluteLayout Grid.Row="1" Margin="12">
 
             <!-- HOME PET (Sadece session çalışmıyorken görünsün) -->
+            <!--source bind oldugundan, source degisince animation da degisir-->
             <skia:SKLottieView
-                Source="{Binding LottieSource}"
+                Source="{Binding LottieSource}"  
                 RepeatCount="-1"
                 HeightRequest="260"
                 WidthRequest="260"
                 AbsoluteLayout.LayoutBounds="0.5,0.62,260,260"
                 AbsoluteLayout.LayoutFlags="PositionProportional">
 
-                <!-- ✅ Session başlayınca bunu gizliyoruz (çift animasyon olmasın diye) -->
+                <!-- session başlayınca bunu gizle (çift animasyon olmasın diye) -->
                 <skia:SKLottieView.Triggers>
                     <DataTrigger TargetType="skia:SKLottieView"
                                  Binding="{Binding IsSessionRunning}"
@@ -118,7 +119,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ✅ Running veya Picker açıkken BottomBar'ı sakla -->
+            <!-- Running veya Picker açıkken BottomBar'ı sakla -->
             <Grid.Triggers>
                 <DataTrigger TargetType="Grid"
                              Binding="{Binding IsSessionRunning}"

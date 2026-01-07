@@ -15,7 +15,7 @@ public class DataService
 
         try
         {
-            json = await SecureStorage.GetAsync(PetKey);
+            json = await SecureStorage.GetAsync(PetKey); //acilista peti oku
         }
         catch { /* ignore */ }
 
@@ -37,16 +37,16 @@ public class DataService
         }
     }
 
-    public async Task SavePetAsync(Pet pet)
+    public async Task SavePetAsync(Pet pet) //History, coin, stat vs kaydi 
     {
         EnsureCollections(pet);
-        var json = JsonSerializer.Serialize(pet);
+        var json = JsonSerializer.Serialize(pet); //peti kaydet
 
         Preferences.Set(PetKeyPrefs, json);
 
         try
         {
-            await SecureStorage.SetAsync(PetKey, json);
+            await SecureStorage.SetAsync(PetKey, json); //Petin durumunu JSON olarka kaydet
         }
         catch (Exception ex)
         {

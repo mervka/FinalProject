@@ -14,7 +14,7 @@ public class Pet
     public string CurrentAnimation { get; set; } = "standing_cat.json";
     public List<string> OwnedItemIds { get; set; } = new();
     //public List<RoomItem> RoomItems { get; set; } = new();
-    public List<FocusSession> FocusSessions { get; set; } = new();
+    public List<FocusSession> FocusSessions { get; set; } = new(); //Focus history kayitlari
     
     
     public int Level => TotalFocusMinutes switch

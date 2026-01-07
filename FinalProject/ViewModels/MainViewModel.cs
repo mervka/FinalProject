@@ -72,6 +72,9 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand BuyItemCommand { get; }
     public ICommand ShowHistoryCommand { get; }
     public ICommand HideHistoryCommand { get; }
+    public ICommand ShowDurationPickerCommand { get; }
+    public ICommand HideDurationPickerCommand { get; }
+    public ICommand StartFromPickerCommand { get; }
 
     
     public bool IsDurationPickerVisible
@@ -91,8 +94,8 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (_isShopVisible == value) return;
             _isShopVisible = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(IsBottomBarVisible));
+            OnPropertyChanged();   //UI haberi
+            OnPropertyChanged(nameof(IsBottomBarVisible)); 
         }
     }
     
@@ -121,13 +124,9 @@ public class MainViewModel : INotifyPropertyChanged
             });
         }
     }
-
-
-    public ICommand ShowDurationPickerCommand { get; }
-    public ICommand HideDurationPickerCommand { get; }
-    public ICommand StartFromPickerCommand { get; }
-
-    public MainViewModel()
+    
+   //----Constructor-----// 
+    public MainViewModel() 
     {
         ChangeAnimationCommand = new Command<string>(file =>
         {
@@ -145,7 +144,7 @@ public class MainViewModel : INotifyPropertyChanged
                 SelectedMinutes = parsed;
         });
         
-        ShowDurationPickerCommand = new Command(() =>
+        ShowDurationPickerCommand = new Command(() =>    //constructor'da command'e is veriyoruz --- XMAL'de bindingContext'le butona bağlıyoruz
         {
             if (IsSessionRunning) return;
             IsDurationPickerVisible = true;
@@ -207,7 +206,7 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     // -------------------------
-    // 3) Bindable Properties (UI buraya bakar)
+    // 3) Bindable Properties (güncel değer--UI buraya bakar)
     // -------------------------
     public Pet Pet
     {
@@ -230,7 +229,7 @@ public class MainViewModel : INotifyPropertyChanged
     public double HappinessProgress => Happiness / (double)StatMax;
     public double HealthProgress => Health / (double)StatMax;
     
-    public ObservableCollection<ShopItem> ShopItems { get; } = new();
+    public ObservableCollection<ShopItem> ShopItems { get; } = new(); //liste degisince ekle-sil UI guncellensin
     public ObservableCollection<ShopCategory> ShopCategories { get; } = new();
     public ObservableCollection<ShopItem> VisibleShopItems { get; } = new();
     
@@ -253,7 +252,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
     // SKLottieView Source icin
-    public SKLottieImageSource LottieSource =>
+    public SKLottieImageSource LottieSource => 
         new SKFileLottieImageSource { File = Pet.CurrentAnimation };
 
     public int SelectedMinutes
@@ -293,7 +292,7 @@ public class MainViewModel : INotifyPropertyChanged
         !IsHistoryVisible;
 
     public string RemainingTimeText =>
-        $"{(int)_remainingTime.TotalMinutes:00}:{_remainingTime.Seconds:00}";
+        $"{(int)_remainingTime.TotalMinutes:00}:{_remainingTime.Seconds:00}"; //UI'da bağlı timer text-property
 
     public string SessionTypeText => _isBreakSession ? "Break" : "Focus";
 
@@ -368,7 +367,7 @@ public class MainViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CurrentAnimation));
         OnPropertyChanged(nameof(LottieSource));
 
-        // Sadece "kalici" degisimlerde kaydet (kullanici secimi gibi)
+        // Sadece "kalici" degisimlerde kaydet 
         if (persist)
             _ = SavePetAsync();
     }
@@ -384,7 +383,7 @@ public class MainViewModel : INotifyPropertyChanged
         await SavePetAsync();
     }
     
-    private void AddFocusMinutesToToday(int minutes)
+    private void AddFocusMinutesToToday(int minutes) //History kaydi
     {
         if (minutes <= 0) return;
 
@@ -413,7 +412,7 @@ public class MainViewModel : INotifyPropertyChanged
     private async Task StartSessionAsync()
     {
         _cts?.Cancel();
-        _cts = new CancellationTokenSource();
+        _cts = new CancellationTokenSource(); //cancel butonuyla durdur
         var token = _cts.Token;
         
         IsDurationPickerVisible = false;
@@ -439,7 +438,7 @@ public class MainViewModel : INotifyPropertyChanged
 
             // Break (5 dk) ----- bura direkt acikliyor, kullaniciya sorulup acilma olarak değisebilir...zaman yeterse BAK
             _isBreakSession = true;
-            OnPropertyChanged(nameof(SessionTypeText));
+            OnPropertyChanged(nameof(SessionTypeText)); 
 
             ChangeAnimation(Animations.Break, persist: false);
             //animasyona tekrar bak -değisebilir-
@@ -465,18 +464,18 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task RunCountdownAsync(TimeSpan duration, CancellationToken token)
+    private async Task RunCountdownAsync(TimeSpan duration, CancellationToken token) //Timer flow
     {
         _remainingTime = duration;
         OnPropertyChanged(nameof(RemainingTimeText));
 
-        while (_remainingTime > TimeSpan.Zero)
+        while (_remainingTime > TimeSpan.Zero) //Timer bitene kadar
         {
             token.ThrowIfCancellationRequested();
             await Task.Delay(1000, token);
 
-            _remainingTime = _remainingTime.Subtract(TimeSpan.FromSeconds(1));
-            OnPropertyChanged(nameof(RemainingTimeText));
+            _remainingTime = _remainingTime.Subtract(TimeSpan.FromSeconds(1)); //remainingtime azalıyor
+            OnPropertyChanged(nameof(RemainingTimeText));  //Timer güncelle
         }
     }
 
@@ -741,28 +740,29 @@ public class MainViewModel : INotifyPropertyChanged
         await SavePetAsync();
     }
 
-    private void StartStatDecayLoop()
+    private void StartStatDecayLoop() 
     {
-        if (_statDecayCts != null)
-        {
+        if (_statDecayCts != null)   //loop daha önce başladı mı kontrol
+        { 
             return;
         }
 
-        _statDecayCts = new CancellationTokenSource();
+        _statDecayCts = new CancellationTokenSource();  //timer durdurma 
         var token = _statDecayCts.Token;
 
-        _ = Task.Run(async () =>
+        _ = Task.Run(async () =>   //UI kitlenmesin arkada planda baslat
         {
-            using var timer = new PeriodicTimer(StatDecayInterval);
+            using var timer = new PeriodicTimer(StatDecayInterval); //her dakika tetikle
 
-            while (await timer.WaitForNextTickAsync(token))
+            while (await timer.WaitForNextTickAsync(token))    //düsüs olayi
             {
-                //Pet.LastStatUpdateUtc = DateTime.UtcNow; //TEST ET ONA GORE UYGULA!!!!!
+                 //Direkt Pet'e yazma once hesap
                 var didChange = false;
                 var petHunger = Pet.Hunger;
                 var petHappiness = Pet.Happiness;
                 var petHealth = Pet.Health;
-
+                
+                //Online dusus her tickte -1
                 didChange |= AdjustStat(ref petHunger, -StatDecayAmount);
                 didChange |= AdjustStat(ref petHappiness, -StatDecayAmount);
                 didChange |= AdjustStat(ref petHealth, -StatDecayAmount);
@@ -787,7 +787,7 @@ public class MainViewModel : INotifyPropertyChanged
         }, token);
     }
     
-    private void ApplyOfflineStatDecay()
+    private void ApplyOfflineStatDecay() //Offline stat dususu 
     {
         var now = DateTime.UtcNow;
         
@@ -804,13 +804,10 @@ public class MainViewModel : INotifyPropertyChanged
             return;
         }
         
-        //DEGİSİKLİKLERİ KONTROL ET!!!!!!!!!!!!
+        //DEGİSİKLİKLERİ KONTROL ET!!!!!!!!!!!! //Offline dusus 
         var chunks = (int)(elapsed.TotalHours / OfflineDecayInterval.TotalHours); 
         var totalDrop = chunks * OfflineDecayChunk; 
-
-        //var minuteDrops = (int)Math.Floor(elapsed.TotalMinutes);
-        //var totalDrop = minuteDrops * StatDecayAmount + chunkDrops * OfflineDecayChunk;
-
+        
         if (totalDrop <= 0)
         {
             return;
@@ -834,7 +831,6 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
         Pet.LastStatUpdateUtc = Pet.LastStatUpdateUtc.AddHours(chunks * OfflineDecayInterval.TotalHours);
-        //Pet.LastStatUpdateUtc = DateTime.UtcNow;
         _ = SavePetAsync();
     }
 
@@ -878,7 +874,8 @@ public class MainViewModel : INotifyPropertyChanged
     // -------------------------
     // 8) INotifyPropertyChanged
     // -------------------------
-    public event PropertyChangedEventHandler? PropertyChanged;
+    //-----VievModelde ne değişti UI'ya haber ver -UI yenilenmesi-
+    public event PropertyChangedEventHandler? PropertyChanged;  
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
